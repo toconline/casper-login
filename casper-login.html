@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="casper-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * `casper-login`
+     * UI elements for casper server login
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class CasperLogin extends Polymer.Element {
+      static get is() { return 'casper-login'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'casper-login'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(CasperLogin.is, CasperLogin);
+  </script>
+</dom-module>
