@@ -39,6 +39,7 @@
       :host {
         display: block;
         tabindex: -1;
+        margin-bottom: 20px;
       }
 
       paper-input, paper-checkbox {
@@ -101,7 +102,7 @@
                  auto-validate autocomplete="email" minlength="4" autofocus>
     </paper-input>
     <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
-                 auto-validate autocomplete="password" minlength="6">              
+                 auto-validate autocomplete="password" minlength="6">
     </paper-input>
     <paper-checkbox id="remember" tabindex="4">Gravar dados de entrada</paper-checkbox>
     <paper-button id="signIn" tabindex="5" on-click="_signIn">
@@ -138,7 +139,7 @@
             value: undefined
           }
         };
-      }  
+      }
 
       ready () {
         super.ready();
@@ -157,7 +158,7 @@
         super.connectedCallback();
         this.$.toast.fitInto = this.parentElement;
         this._lockUi();
-        this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde'), this.timeout * 1000); 
+        this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde'), this.timeout * 1000);
         this.$.socket.validateSession();
       }
 
@@ -192,7 +193,7 @@
         this.$.toast.open();
         this._unlockUi();
       }
-      
+
       _showInputError (message) {
         this._hideToast();
         this.$.email.errorMessage = message;
@@ -228,7 +229,7 @@
       _onKeyDown (event) {
         if ( event.keyCode === 13 ) {
           if ( this.$.password.focused ) {
-            this._signIn();          
+            this._signIn();
           } else if ( this.$.email.focused ) {
             this.$.password.focus();
           }
@@ -246,7 +247,7 @@
 
       _onFocusChange (event) {
         if ( event.detail.value && (event.target.id === 'password' || event.target.id === 'email') ) {
-          this._hideToast();     
+          this._hideToast();
         }
       }
 
