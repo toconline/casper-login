@@ -21,6 +21,8 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../casper-socket/casper-socket.html">
 <link rel="import" href="../casper-icons/casper-icons.html">
+<link rel="import" href="../casper-button/casper-button.html">
+
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
@@ -66,19 +68,16 @@
         display: inline-flex;
       }
 
-      #signIn {
-        background-color: #101010;
-        color: white;
-        margin: 15px 10px 0px 0px;
+      casper-button{
+        margin-right: 0;
       }
 
-      #signIn[disabled] {
-        background-color: #808080;
-        color: #ccc;
+      #signIn {
+        /* background-color: #101010; */
       }
 
       #toast {
-        --paper-toast-background-color: red;
+        --paper-toast-background-color: #f12424;
         --paper-toast-color: white;
         width: 100%;
         font-weight: bold;
@@ -87,28 +86,70 @@
         align-items: center;
       }
 
-      a {
+      #toast[success]{
+        --paper-toast-background-color: #4a9a4a;
+        --paper-toast-color: white;
+      }
+
+      .user_actions a {
+        text-align: center;
         color: var(--primary-color);
         text-decoration: none;
+        display: none;
       }
 
-      a:hover {
+      .user_actions a:hover {
         text-decoration: underline;
       }
-    </style>
 
-    <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
-    <paper-input id="email" name="email" label="Correio electrónico" tabindex="1"
-                 auto-validate autocomplete="email" minlength="4" autofocus>
-    </paper-input>
-    <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
-                 auto-validate autocomplete="password" minlength="6">
-    </paper-input>
-    <paper-checkbox id="remember" tabindex="4">Gravar dados de entrada</paper-checkbox>
-    <paper-button id="signIn" tabindex="5" on-click="_signIn">
-      <paper-spinner-lite id="spin"></paper-spinner-lite>ENTRAR
-    </paper-button>
-    <a href='#' tabindex="-1">Esqueceu-se da sua senha?</a>
+      #forget_button {
+        visibility: hidden;
+      }
+
+      .buttons {
+        margin-top: 16px;
+      }
+
+      .buttons #signIn {
+        display: none;
+      }
+
+      .buttons #forgetPasswordJob {
+        display: none;
+      }
+
+      .user_actions[disabled] a {
+        pointer-events: none;
+        cursor: default;
+        opacity: 0.6;
+        color: grey;
+      }
+
+    </style>
+      <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
+      <paper-input id="email" name="email" label="Correio electrónico" tabindex="1"
+                   auto-validate autocomplete="email" minlength="4" autofocus>
+      </paper-input>
+      <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
+                   auto-validate autocomplete="password" minlength="6">
+      </paper-input>
+      <paper-checkbox id="remember" tabindex="4">Gravar dados de entrada</paper-checkbox>
+
+      <div class="buttons">
+        <casper-button id="signIn" tabindex="5" on-tap="_signIn">
+          <a>Entrar</a>
+        </casper-button>
+
+        <casper-button id="forgetPasswordJob" tabindex="5" on-tap="_forgetPasswordJob">
+          <a>Enviar-me instruções para recuperação da senha</a>
+        </casper-button>
+      </div>
+
+      <div id="userAction" class="user_actions">
+        <a id='forget_form' href='#' on-tap="_forgotPassword" tabindex="-1">Esqueceu-se da sua senha?</a>
+        <a id='login_form'  href='#' on-tap="_signInForm"     tabindex="-1">Preencher dados de login.</a>
+      </div>
+
     <paper-toast id="toast" duration="5000">
       <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"/></iron-icon>
     </paper-toast>
@@ -119,6 +160,13 @@
 
       static get is () {
         return 'casper-login';
+      }
+
+      static _b64EncodeUnicode (str) {
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }));
       }
 
       static get properties () {
@@ -143,7 +191,11 @@
 
       ready () {
         super.ready();
+
+        this._boundSendToJobNotification = this._onSendToJobNotification.bind(this);
+
         this.addEventListener('casper-signed-in', e => this._onCasperSignedIn(e));
+        this.addEventListener('casper-error',      e => this._onCasperError(e));
         this.addEventListener('casper-signed-out', e => this._onCasperSignedOut(e));
         this.addEventListener('casper-forbidden', e => this._onCasperForbidden());
         this.addEventListener('casper-disconnected', e => this._onCasperDisconnected());
@@ -152,6 +204,7 @@
         this.$.email.addEventListener('focused-changed', e => this._onFocusChange(e));
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
         this._resetValidation();
+        this._showLogin();
       }
 
       connectedCallback () {
@@ -167,30 +220,135 @@
         this.$.socket.disconnect();
       }
 
-      _signIn () {
+      _showLogin() {
+        this.$.signIn.style.display = 'block';
+        this.$.forget_form.style.display = 'block';
+
+        this.$.password.style.display = 'block';
+        this.$.remember.style.display = 'block';
+
+        // show/hide links
+        this.$.forgetPasswordJob.style.display = 'none';
+        this.$.login_form.style.display = 'none';
+      }
+
+      _showForgetPassword() {
+        this.$.forgetPasswordJob.style.display = 'block';
+        this.$.login_form.style.display = 'block';
+
+        this.$.password.style.display = 'none';
+        this.$.remember.style.display = 'none';
+
+        // show/hide links
+        this.$.signIn.style.display = 'none';
+        this.$.forget_form.style.display = 'none';
+      }
+
+      _forgotPassword(event) {
+        this._showForgetPassword()
+        event.preventDefault();
+      }
+
+      _signInForm(event) {
+        this._showLogin();
+        event.preventDefault();
+      }
+
+      _forgetPasswordJob (event) {
+
+
         if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
           this.$.email.invalid = true;
           this.$.email.focus();
+          this.$.signIn.submitting(false);
+          return;
+        }else{
+          this._lockUi();
+          this._sendToJob(event.target, this.$.email.value);
+        }
+
+        event.preventDefault();
+      }
+
+
+      _sendToJob (target, email) {
+        this.$.socket.submitJob({
+            tube: 'toconline-recover-password',
+            email: email
+          },
+          this._sendToJobResponse.bind(this), {
+            ttr: 15,
+            validity: 20,
+            timeout: 20
+          }
+        );
+      }
+
+      _sendToJobResponse (response) {
+        if ( response.success === true ) {
+          if ( this._jobId ) {
+            this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
+          }
+          this._jobId = response.channel;
+          this.$.socket.addEventListener(this._jobId, this._boundSendToJobNotification);
+        }
+      }
+
+      _onSendToJobNotification (notification) {
+
+        if ( notification.detail.status === 'completed' && notification.detail.status_code == 200 ) {
+
+          var response = notification.detail.response;
+          this.$.forgetPasswordJob.progress = 100;
+          this.$.forgetPasswordJob.submitting(false);
+          this._unlockUi();
+
+          if(response.success == false){
+            this._showError('Email não encontrado.');
+          }else{
+            this._showSuccess('Instruções enviadas por email.');
+            this._showLogin();
+          }
+        }
+      }
+
+      _signIn (event) {
+        if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
+          this.$.email.invalid = true;
+          this.$.email.focus();
+          this.$.signIn.submitting(false);
           return;
         }
         if ( this.$.password.invalid || this.$.password.value === undefined || this.$.password.value.length === 0 ) {
           this.$.password.invalid = true;
           this.$.password.focus();
+          this.$.signIn.submitting(false);
           return;
         }
         this._lockUi();
-        this.$.spin.active = true;
         this._hideToast();
         window.localStorage.setItem('casper-remember-me', this.$.remember.checked ? 'true' : 'false' );
         this.$.socket.signIn(this.$.email.value, btoa(this.$.password.value), this.timeout);
+        this.$.signIn.submitting(true);
         this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.'), this.timeout * 1000);
       }
 
-      _showError (message) {
-        this.$.email.invalid = false;
-        this.$.password.invalid = false;
+      _openToast(message) {
         this.$.toast.text = message;
         this.$.toast.open();
+      }
+
+      _showSuccess (message) {
+        this.$.toast.setAttribute("success", "");
+        this._openToast(message);
+        this._unlockUi();
+      }
+
+      _showError (message) {
+        this.$.toast.removeAttribute("success");
+        this.$.email.invalid = false;
+        this.$.password.invalid = false;
+        this._openToast(message);
         this._unlockUi();
       }
 
@@ -208,7 +366,7 @@
         this.$.email.disabled = true;
         this.$.password.disabled = true;
         this.$.remember.disabled = true;
-        this.$.signIn.disabled =true;
+        this.$.userAction.setAttribute("disabled", "");
       }
 
       _unlockUi () {
@@ -217,9 +375,9 @@
         this.$.email.disabled = false;
         this.$.password.disabled = false;
         this.$.remember.disabled = false;
-        this.$.signIn.disabled = false;
         this.$.socket.disconnect();
-        this.$.spin.active = false;
+        this.$.signIn.submitting(false);
+        this.$.userAction.removeAttribute("disabled");
       }
 
       _hideToast () {
@@ -234,15 +392,15 @@
             this.$.password.focus();
           }
         } else {
-          this._resetValidation();
+          // this._resetValidation();
         }
       }
 
       _resetValidation () {
         this.$.email.invalid = false;
         this.$.password.invalid = false;
-        this.$.email.errorMessage ="Email demasiado curto";
-        this.$.password.errorMessage ="Senha demasiado curta";
+        this.$.email.errorMessage = "Email demasiado curto";
+        this.$.password.errorMessage = "Senha demasiado curta";
       }
 
       _onFocusChange (event) {
@@ -251,8 +409,12 @@
         }
       }
 
+      _onCasperError() {
+        this._showError("Senha ou email errados"); // Invalid email or password");
+      }
+
       _onCasperForbidden () {
-        this._showInputError("Senha ou email errados"); // Invalid email or password");
+        this._showError("Senha ou email errados"); // Invalid email or password");
         this.$.password.value = '';
         this.$.password.invalid = true;
         this.$.password.focus();
