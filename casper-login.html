@@ -127,6 +127,7 @@
 
     </style>
       <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
+
       <paper-input id="email" name="email" label="Correio electrónico" tabindex="1"
                    auto-validate autocomplete="email" minlength="4" autofocus>
       </paper-input>
@@ -201,7 +202,6 @@
         this.addEventListener('casper-disconnected', e => this._onCasperDisconnected());
         this.$.email.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('keydown', e => this._onKeyDown(e));
-        this.$.email.addEventListener('focused-changed', e => this._onFocusChange(e));
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
         this._resetValidation();
         this._showLogin();
@@ -255,21 +255,17 @@
       }
 
       _forgetPasswordJob (event) {
-
-
         if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
           this.$.email.invalid = true;
           this.$.email.focus();
           this.$.signIn.submitting(false);
           return;
-        }else{
+        } else {
           this._lockUi();
           this._sendToJob(event.target, this.$.email.value);
         }
-
         event.preventDefault();
       }
-
 
       _sendToJob (target, email) {
         this.$.socket.submitJob({
@@ -333,7 +329,7 @@
         this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.'), this.timeout * 1000);
       }
 
-      _openToast(message) {
+      _openToast (message) {
         this.$.toast.text = message;
         this.$.toast.open();
       }
@@ -392,7 +388,8 @@
             this.$.password.focus();
           }
         } else {
-          // this._resetValidation();
+          this._hideToast();
+          this._resetValidation();
         }
       }
 
@@ -403,8 +400,13 @@
         this.$.password.errorMessage = "Senha demasiado curta";
       }
 
+      /**
+       * Focus listener for password field
+       *
+       * After the login error password is focused, when the focus moves out hide the tooltip
+       */
       _onFocusChange (event) {
-        if ( event.detail.value && (event.target.id === 'password' || event.target.id === 'email') ) {
+        if ( event.detail.value == false && event.target.id === 'password') {
           this._hideToast();
         }
       }
@@ -415,9 +417,10 @@
 
       _onCasperForbidden () {
         this._showError("Senha ou email errados"); // Invalid email or password");
-        this.$.password.value = '';
+        this.$.password.errorMessage = "Senha ou email errados";
         this.$.password.invalid = true;
-        this.$.password.focus();
+        this.$.email.$.nativeInput.select();
+        this.$.password.$.nativeInput.select();
       }
 
       _onCasperDisconnected () {
