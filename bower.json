@@ -4,7 +4,7 @@
   "main": "casper-login.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
-    "casper-socket": "casper2020/casper-socket#^0.1.11",
+    "casper-socket": "casper2020/casper-socket#^0.1.16",
     "paper-spinner": "PolymerElements/paper-spinner#^2.1.0",
     "paper-button": "PolymerElements/paper-button#^2.1.1",
     "paper-input": "PolymerElements/paper-input#^2.2.2",
