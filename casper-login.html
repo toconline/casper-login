@@ -198,8 +198,8 @@
         this.addEventListener('casper-signed-in', e => this._onCasperSignedIn(e));
         this.addEventListener('casper-error',      e => this._onCasperError(e));
         this.addEventListener('casper-signed-out', e => this._onCasperSignedOut(e));
-        this.addEventListener('casper-forbidden', e => this._onCasperForbidden());
-        this.addEventListener('casper-disconnected', e => this._onCasperDisconnected());
+        this.addEventListener('casper-forbidden', e => this._onCasperForbidden(e));
+        this.addEventListener('casper-disconnected', e => this._onCasperDisconnected(e));
         this.$.email.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
@@ -324,7 +324,7 @@
         this._lockUi();
         this._hideToast();
         window.localStorage.setItem('casper-remember-me', this.$.remember.checked ? 'true' : 'false' );
-        this.$.socket.signIn(this.$.email.value, btoa(this.$.password.value), this.timeout);
+        this.$.socket.signIn(this.$.email.value, btoa(this.$.password.value), this.timeout, this.$.remember.checked);
         this.$.signIn.submitting(true);
         this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.'), this.timeout * 1000);
       }
@@ -335,13 +335,13 @@
       }
 
       _showSuccess (message) {
-        this.$.toast.setAttribute("success", "");
+        this.$.toast.setAttribute('success', '');
         this._openToast(message);
         this._unlockUi();
       }
 
       _showError (message) {
-        this.$.toast.removeAttribute("success");
+        this.$.toast.removeAttribute('success');
         this.$.email.invalid = false;
         this.$.password.invalid = false;
         this._openToast(message);
@@ -362,7 +362,7 @@
         this.$.email.disabled = true;
         this.$.password.disabled = true;
         this.$.remember.disabled = true;
-        this.$.userAction.setAttribute("disabled", "");
+        this.$.userAction.setAttribute('disabled', '');
       }
 
       _unlockUi () {
@@ -373,7 +373,7 @@
         this.$.remember.disabled = false;
         this.$.socket.disconnect();
         this.$.signIn.submitting(false);
-        this.$.userAction.removeAttribute("disabled");
+        this.$.userAction.removeAttribute('disabled');
       }
 
       _hideToast () {
@@ -396,8 +396,8 @@
       _resetValidation () {
         this.$.email.invalid = false;
         this.$.password.invalid = false;
-        this.$.email.errorMessage = "Email demasiado curto";
-        this.$.password.errorMessage = "Senha demasiado curta";
+        this.$.email.errorMessage = 'Email demasiado curto';
+        this.$.password.errorMessage = 'Senha demasiado curta';
       }
 
       /**
@@ -411,19 +411,19 @@
         }
       }
 
-      _onCasperError() {
-        this._showError("Senha ou email errados"); // Invalid email or password");
+      _onCasperError (event) {
+        this._showError('Ocorreu um erro de acesso inesperado, por favor tente mais tarde');
       }
 
-      _onCasperForbidden () {
-        this._showError("Senha ou email errados"); // Invalid email or password");
-        this.$.password.errorMessage = "Senha ou email errados";
+      _onCasperForbidden (event) {
+        this._showError('Senha ou email errados');
+        this.$.password.errorMessage = 'Senha ou email errados';
         this.$.password.invalid = true;
         this.$.email.$.nativeInput.select();
         this.$.password.$.nativeInput.select();
       }
 
-      _onCasperDisconnected () {
+      _onCasperDisconnected (event) {
         if ( this._signInTimer ) {
           this._showError("Servidor Indisponível, por favor tente mais tarde"); // Server unavailable, try latter;
         }
@@ -439,11 +439,6 @@
         this._signInTimer = undefined;
         if ( event.detail &&  event.detail.route ) {
           route = event.detail.route;
-        }
-        if ( event.detail && event.detail.role ) {
-          window.localStorage.setItem('casper-role', event.detail.role);
-        } else {
-          window.localStorage.removeItem('casper-role');
         }
         window.location = route;
       }
