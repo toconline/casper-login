@@ -209,7 +209,7 @@
 
       connectedCallback () {
         super.connectedCallback();
-        this.$.toast.fitInto = this.parentElement;
+        this.$.toast.fitInto = this;
         this._lockUi();
         this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde'), this.timeout * 1000);
         this.$.socket.validateSession();
