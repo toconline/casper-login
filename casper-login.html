@@ -19,15 +19,12 @@
   -
  -->
 <link rel="import" href="../polymer/polymer-element.html">
-<link rel="import" href="../casper-socket/casper-socket.html">
-<link rel="import" href="../casper-icons/casper-icons.html">
-<link rel="import" href="../casper-button/casper-button.html">
-
-<link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../casper-socket/casper-socket.html">
+<link rel="import" href="../casper-icons/casper-icons.html">
+<link rel="import" href="../casper-button/casper-button.html">
 
 <!--
 `casper-login`
@@ -262,7 +259,7 @@
 
         // ... attempt automatic login 1st ...
         if ( this._attemptAutomaticLogin() === true ) {
-          return;
+          return;  // ... auto login kicked in return now ...
         }
 
         // ... inputs validation ...
@@ -408,7 +405,7 @@
           this._jobId = response.channel;
           this.$.socket.addEventListener(this._jobId, this._boundSendToJobNotification);
         } else {
-          // TODO TOAST ME PLZ
+          this._showError('De mommento não é possivel a recuperação de senha, p.f. tente mais tarde');
         }
       }
 
