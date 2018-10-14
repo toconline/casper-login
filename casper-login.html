@@ -134,7 +134,7 @@
       <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
                    auto-validate autocomplete="password" minlength="6">
       </paper-input>
-      <paper-checkbox id="remember" tabindex="4">Gravar dados de entrada</paper-checkbox>
+      <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Gravar dados de entrada</paper-checkbox>
 
       <div class="buttons">
         <casper-button id="signIn" tabindex="5" on-tap="_signIn">
@@ -163,13 +163,6 @@
         return 'casper-login';
       }
 
-      static _b64EncodeUnicode (str) {
-        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-          return String.fromCharCode('0x' + p1);
-        }));
-      }
-
       static get properties () {
         return {
           /** How long should we wait for the server to respond */
@@ -186,33 +179,37 @@
           cookieDomain: {
             type: String,
             value: undefined
+          },
+          /** Other HTML element where tooltip/toast fits into */
+          tooltipFitInto: {
+            type: Object,
+            observer: '_tooltipFitInto'
+          },
+          /** true when using saved credentials or the user want's to save them */
+          remember: {
+            type: Boolean,
+            value: false,
+            observer: '_rememberChanged'
           }
-        };
+        }
       }
 
       ready () {
         super.ready();
-
         this._boundSendToJobNotification = this._onSendToJobNotification.bind(this);
-
-        this.addEventListener('casper-signed-in', e => this._onCasperSignedIn(e));
-        this.addEventListener('casper-error',      e => this._onCasperError(e));
-        this.addEventListener('casper-signed-out', e => this._onCasperSignedOut(e));
-        this.addEventListener('casper-forbidden', e => this._onCasperForbidden(e));
-        this.addEventListener('casper-disconnected', e => this._onCasperDisconnected(e));
+        this._boundSignInNotification = this._signInNotification.bind(this);
         this.$.email.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
+        this.$.toast.fitInto = this;
+        this._autoLogin = undefined;
         this._resetValidation();
         this._showLogin();
       }
 
       connectedCallback () {
         super.connectedCallback();
-        this.$.toast.fitInto = this;
-        this._lockUi();
-        this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde'), this.timeout * 1000);
-        this.$.socket.validateSession();
+        this._attemptAutomaticLogin();
       }
 
       disconnectedCallback () {
@@ -220,95 +217,55 @@
         this.$.socket.disconnect();
       }
 
-      _showLogin() {
-        this.$.signIn.style.display = 'block';
-        this.$.forget_form.style.display = 'block';
-
-        this.$.password.style.display = 'block';
-        this.$.remember.style.display = 'block';
-
-        // show/hide links
-        this.$.forgetPasswordJob.style.display = 'none';
-        this.$.login_form.style.display = 'none';
-      }
-
-      _showForgetPassword() {
-        this.$.forgetPasswordJob.style.display = 'block';
-        this.$.login_form.style.display = 'block';
-
-        this.$.password.style.display = 'none';
-        this.$.remember.style.display = 'none';
-
-        // show/hide links
-        this.$.signIn.style.display = 'none';
-        this.$.forget_form.style.display = 'none';
-      }
-
-      _forgotPassword(event) {
-        this._showForgetPassword()
-        event.preventDefault();
-      }
-
-      _signInForm(event) {
-        this._showLogin();
-        event.preventDefault();
-      }
-
-      _forgetPasswordJob (event) {
-        if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
-          this.$.email.invalid = true;
-          this.$.email.focus();
-          this.$.signIn.submitting(false);
-          return;
-        } else {
+      /**
+       * Attempt login with stored refresh token or using current access token stored in cookie
+       */
+      _attemptAutomaticLogin () {
+        let email         = this.$.socket.savedEmail;
+        let refresh_token = this.$.socket.savedCredential;
+        let access_token  = this.$.socket.sessionCookie;
+        if ( (email && refresh_token) || access_token ) {
+          this.$.signIn.disabled = true;
+          this.$.signIn.submitting(true);
           this._lockUi();
-          this._sendToJob(event.target, this.$.email.value);
-        }
-        event.preventDefault();
-      }
-
-      _sendToJob (target, email) {
-        this.$.socket.submitJob({
-            tube: 'toconline-recover-password',
-            email: email
-          },
-          this._sendToJobResponse.bind(this), {
-            ttr: 15,
-            validity: 20,
-            timeout: 20
+          if ( email && refresh_token ) {
+            this.$.email.value = email;
+            this.$.password.value = '\xA0\xA0\xA0\xA0\xA0\xA0\xA0\xA0';
+            this.remember = true;
+            this._openToast('Inicio de sessão automático com credencial gravada', true);
+          } else {
+            this._openToast('Renovação de sessão iniciada', true);
           }
-        );
-      }
-
-      _sendToJobResponse (response) {
-        if ( response.success === true ) {
-          if ( this._jobId ) {
-            this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
-          }
-          this._jobId = response.channel;
-          this.$.socket.addEventListener(this._jobId, this._boundSendToJobNotification);
-        }
-      }
-
-      _onSendToJobNotification (notification) {
-
-        if ( notification.detail.status === 'completed' && notification.detail.status_code == 200 ) {
-
-          var response = notification.detail.response;
-          this.$.forgetPasswordJob.progress = 100;
-          this.$.forgetPasswordJob.submitting(false);
-          this._unlockUi();
-
-          if(response.success == false){
-            this._showError('Email não encontrado.');
-          }else{
-            this._showSuccess('Instruções enviadas por email.');
-            this._showLogin();
-          }
+          this.$.socket.submitJob({
+              tube:          this.$.socket.refreshTube,
+              refresh_token: refresh_token,
+              access_token:  access_token
+            },
+            this._signInResponse.bind(this), {
+              ttr: Math.max(this.timeout - 5, 5),
+              validity: this.timeout,
+              timeout: this.timeout
+            }
+          );
+          this._autoLogin = true;
+          return true;
+        } else {
+          this._autoLogin = false;
+          return false;
         }
       }
 
+      /**
+       * Event handler for sign-in button, attemps auto login first, if its not possible then performs normal login
+       */
       _signIn (event) {
+
+        // ... attempt automatic login 1st ...
+        if ( this._attemptAutomaticLogin() === true ) {
+          return;
+        }
+
+        // ... inputs validation ...
         if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
           this.$.email.invalid = true;
           this.$.email.focus();
@@ -321,15 +278,165 @@
           this.$.signIn.submitting(false);
           return;
         }
+
+        // ... block UI until server responds ...
         this._lockUi();
         this._hideToast();
-        window.localStorage.setItem('casper-remember-me', this.$.remember.checked ? 'true' : 'false' );
-        this.$.socket.signIn(this.$.email.value, btoa(this.$.password.value), this.timeout, this.$.remember.checked);
         this.$.signIn.submitting(true);
-        this._signInTimer = setTimeout(() => this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.'), this.timeout * 1000);
+        if ( this.$.remember.checked ) {
+          this.$.socket.savedEmail = this.$.email.value;
+        }
+
+        // ... submit login request to the login tube ...
+        this.$.socket.submitJob({
+            tube:     this.$.socket.loginTube,
+            email:    this.$.email.value,
+            password: btoa(this.$.password.value),
+            remember: this.remember
+          },
+          this._signInResponse.bind(this), {
+            ttr: Math.max(this.timeout - 5, 5),
+            validity: this.timeout,
+            timeout: this.timeout
+          }
+        );
       }
 
-      _openToast (message) {
+      _signInResponse (response) {
+        if ( response.success === true ) {
+          if ( this._jobId ) {
+            // We must now who was bound TODO invest on self cleaning notification ??? this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
+            this.$.socket.removeEventListener(this._jobId, this._boundSignInNotification);
+          }
+          this._jobId = response.channel;
+          this.$.socket.addEventListener(this._jobId, this._boundSignInNotification);
+        } else {
+          if ( response.status_code === 504 ) {
+            this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
+          } else {
+            this._showError('Serviço Indisponível, p.f. tente mais tarde.');
+          }
+          // Tem que tentar de novo
+        }
+      }
+
+      _signInNotification (notification) {
+        switch (notification.detail.status_code ) {
+          case 200:
+            this._lockUi();
+            this.$.socket.loginListener(notification.detail);
+            break;
+          case 401:
+            if ( this._autoLogin === true ) {
+              this._showError('Credencial expirada, re-introduza email e senha');
+              this.$.socket.wipeCredentials();
+              this.$.password.value = '';
+              this.$.email.$.nativeInput.select();
+              this.$.toast.setAttribute('success', '');
+            } else {
+              this._showPasswordError();
+            }
+            break;
+          case 500:
+          default:
+            this._showError('Serviço Indisponível, p.f. tente mais tarde.');
+            break;
+        }
+      }
+
+      _showLogin () {
+        this.$.signIn.style.display = 'block';
+        this.$.forget_form.style.display = 'block';
+
+        this.$.password.style.display = 'block';
+        this.$.remember.style.display = 'block';
+
+        // show/hide links
+        this.$.forgetPasswordJob.style.display = 'none';
+        this.$.login_form.style.display = 'none';
+      }
+
+      _showForgetPassword () {
+        this.$.forgetPasswordJob.style.display = 'block';
+        this.$.login_form.style.display = 'block';
+
+        this.$.password.style.display = 'none';
+        this.$.remember.style.display = 'none';
+
+        // show/hide links
+        this.$.signIn.style.display = 'none';
+        this.$.forget_form.style.display = 'none';
+      }
+
+      _forgotPassword (event) {
+        this._showForgetPassword()
+        event.preventDefault();
+      }
+
+      _signInForm (event) {
+        this._showLogin();
+        event.preventDefault();
+      }
+
+      _forgetPasswordJob (event) {
+        if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
+          this.$.email.invalid = true;
+          this.$.email.focus();
+          this.$.signIn.submitting(false);
+          return;
+        } else {
+          this._lockUi();
+          this.$.socket.submitJob({
+              tube: this.$.socket.tubePrefix + '-recover-password',
+              email: this.$.email.value
+            },
+            this._forgetPasswordResponse.bind(this), {
+              ttr: Math.max(this.timeout - 5, 5),
+              validity: this.timeout,
+              timeout: this.timeout
+            }
+          );
+        }
+        event.preventDefault();
+      }
+
+      _forgetPasswordResponse (response) {
+        if ( response.success === true ) {
+          if ( this._jobId ) {
+            this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);  // TODO self cleaning notifications
+          }
+          this._jobId = response.channel;
+          this.$.socket.addEventListener(this._jobId, this._boundSendToJobNotification);
+        } else {
+          // TODO TOAST ME PLZ
+        }
+      }
+
+      _onSendToJobNotification (notification) {
+
+        if ( notification.detail.status === 'completed' && notification.detail.status_code == 200 ) {
+          var response = notification.detail.response;
+          this.$.forgetPasswordJob.progress = 100;
+          this.$.forgetPasswordJob.submitting(false);
+          this._unlockUi();
+
+          if ( response.success == false ) {
+            this._showError('Email não encontrado.');
+          } else {
+            this._showSuccess('Instruções enviadas por email.');
+            this._showLogin();
+          }
+        }
+      }
+
+      _openToast (message, success) {
+        if ( success !== undefined ) {
+          if ( success ) {
+            this.$.toast.setAttribute('success', '');
+          } else {
+            this.$.toast.removeAttribute('success');
+          }
+        }
         this.$.toast.text = message;
         this.$.toast.open();
       }
@@ -355,6 +462,14 @@
         this.$.email.invalid = true;
         this.$.password.invalid = true;
         this._unlockUi();
+      }
+
+      _showPasswordError () {
+        this._showError('Senha ou email errados');
+        this.$.password.errorMessage = 'Senha ou email errados';
+        this.$.password.invalid = true;
+        this.$.email.$.nativeInput.select();
+        this.$.password.$.nativeInput.select();
       }
 
       _lockUi () {
@@ -411,41 +526,32 @@
         }
       }
 
-      _onCasperError (event) {
-        this._showError('Ocorreu um erro de acesso inesperado, por favor tente mais tarde');
-      }
-
-      _onCasperForbidden (event) {
-        this._showError('Senha ou email errados');
-        this.$.password.errorMessage = 'Senha ou email errados';
-        this.$.password.invalid = true;
-        this.$.email.$.nativeInput.select();
-        this.$.password.$.nativeInput.select();
-      }
-
-      _onCasperDisconnected (event) {
-        if ( this._signInTimer ) {
-          this._showError("Servidor Indisponível, por favor tente mais tarde"); // Server unavailable, try latter;
+      /**
+       * A transition to false on the remember checkbox clears saved credentials but only after _autoLogin was defined
+       *
+       * @param value current value of the checkbox element
+       */
+      _rememberChanged (value) {
+        if ( value === false && this._autoLogin !== undefined && this.$.socket.savedCredential ) {
+          this.$.socket.wipeCredentials();
+          this.$.password.value = '';
+          this.$.email.$.nativeInput.select();
+          this.$.toast.setAttribute('success', '');
+          this._openToast('A credencial gravada foi eliminada, entre email e senha novamente', true);
         }
       }
 
-      _onCasperSignedIn (event) {
-        let route = '/';
-
-        if ( this.$.remember.checked ) {
-          window.localStorage.setItem('casper-user-email', this.$.email.value );
+      /**
+       * Property change observer to adjust the tooltip fit into behaviour
+       *
+       * @param {object} value the HTML element that contains the tooltip
+       */
+      _tooltipFitInto (value) {
+        if ( this.$ && this.$.toast ) {
+          this.$.toast.fitInto = value;
         }
-        clearTimeout(this._signInTimer);
-        this._signInTimer = undefined;
-        if ( event.detail &&  event.detail.route ) {
-          route = event.detail.route;
-        }
-        window.location = route;
       }
 
-      _onCasperSignedOut () {
-        this._unlockUi();
-      }
     }
 
     window.customElements.define(CasperLogin.is, CasperLogin);
