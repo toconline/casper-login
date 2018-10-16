@@ -206,7 +206,15 @@
 
       connectedCallback () {
         super.connectedCallback();
-        this._attemptAutomaticLogin();
+
+        let issuer = this.$.socket.issuerUrl;
+        if ( issuer !== undefined && window.location.origin !== issuer ) {
+          let redirect = window.location.href.replace(window.location.origin, issuer);
+          console.warn('redirecting to the server that issued the credential => '+redirect);
+          window.location = redirect;
+        } else {
+          this._attemptAutomaticLogin();
+        }
       }
 
       disconnectedCallback () {
