@@ -288,9 +288,6 @@
         this._lockUi();
         this._hideToast();
         this.$.signIn.submitting(true);
-        if ( this.$.remember.checked ) {
-          this.$.socket.savedEmail = this.$.email.value;
-        }
 
         // ... submit login request to the login tube ...
         this.$.socket.submitJob({
