@@ -193,8 +193,6 @@
 
       ready () {
         super.ready();
-        this._boundSendToJobNotification = this._onSendToJobNotification.bind(this);
-        this._boundSignInNotification = this._signInNotification.bind(this);
         this.$.email.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('keydown', e => this._onKeyDown(e));
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
@@ -304,29 +302,29 @@
         );
       }
 
-      _signInResponse (response) {
-        if ( response.success === true ) {
-          if ( this._jobId ) {
-            // We must now who was bound TODO invest on self cleaning notification ??? this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
-            this.$.socket.removeEventListener(this._jobId, this._boundSignInNotification);
-          }
-          this._jobId = response.channel;
-          this.$.socket.addEventListener(this._jobId, this._boundSignInNotification);
-        } else {
-          if ( response.status_code === 504 ) {
-            this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
-          } else {
-            this._showError('Serviço Indisponível, p.f. tente mais tarde.');
-          }
+      //_signInResponse (response) {
+      //  if ( response.success === true ) {
+      //    if ( this._jobId ) {
+      //      // We must now who was bound TODO invest on self cleaning notification ??? this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
+      //      this.$.socket.removeEventListener(this._jobId, this._boundSignInNotification);
+      //    }
+      //    this._jobId = response.channel;
+      //    this.$.socket.addEventListener(this._jobId, this._boundSignInNotification);
+      //  } else {
+      //    if ( response.status_code === 504 ) {
+      //      this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
+      //    } else {
+      //      this._showError('Serviço Indisponível, p.f. tente mais tarde.');
+      //    }
           // Tem que tentar de novo
-        }
-      }
+      //  }
+      //}
 
-      _signInNotification (notification) {
-        switch (notification.detail.status_code ) {
+      _signInResponse (notification) {
+        switch (notification.status_code ) {
           case 200:
             this._lockUi();
-            this.$.socket.loginListener(notification.detail);
+            this.$.socket.loginListener(notification);
             break;
           case 401:
             if ( this._autoLogin === true ) {
@@ -338,6 +336,9 @@
             } else {
               this._showPasswordError();
             }
+            break;
+          case 504:
+            this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
             break;
           case 500:
           default:
@@ -402,22 +403,10 @@
         event.preventDefault();
       }
 
-      _forgetPasswordResponse (response) {
-        if ( response.success === true ) {
-          if ( this._jobId ) {
-            this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);  // TODO self cleaning notifications
-          }
-          this._jobId = response.channel;
-          this.$.socket.addEventListener(this._jobId, this._boundSendToJobNotification);
-        } else {
-          this._showError('De mommento não é possivel a recuperação de senha, p.f. tente mais tarde');
-        }
-      }
+      _forgetPasswordResponse (notification) {
 
-      _onSendToJobNotification (notification) {
-
-        if ( notification.detail.status === 'completed' && notification.detail.status_code == 200 ) {
-          var response = notification.detail.response;
+        if ( notification.status === 'completed' && notification.status_code == 200 ) {
+          var response = notification.response;
           this.$.forgetPasswordJob.progress = 100;
           this.$.forgetPasswordJob.submitting(false);
           this._unlockUi();
