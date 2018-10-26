@@ -302,24 +302,6 @@
         );
       }
 
-      //_signInResponse (response) {
-      //  if ( response.success === true ) {
-      //    if ( this._jobId ) {
-      //      // We must now who was bound TODO invest on self cleaning notification ??? this.$.socket.removeEventListener(this._jobId, this._boundSendToJobNotification);
-      //      this.$.socket.removeEventListener(this._jobId, this._boundSignInNotification);
-      //    }
-      //    this._jobId = response.channel;
-      //    this.$.socket.addEventListener(this._jobId, this._boundSignInNotification);
-      //  } else {
-      //    if ( response.status_code === 504 ) {
-      //      this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
-      //    } else {
-      //      this._showError('Serviço Indisponível, p.f. tente mais tarde.');
-      //    }
-          // Tem que tentar de novo
-      //  }
-      //}
-
       _signInResponse (notification) {
         switch (notification.status_code ) {
           case 200:
