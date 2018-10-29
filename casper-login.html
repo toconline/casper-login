@@ -224,6 +224,15 @@
         this.$.socket.disconnect();
       }
 
+      overrideAutomaticLogin (email, message) {
+        this.$.signIn.disabled = true;
+        this.$.signIn.submitting(true);
+        this.$.email.value = email;
+        this.$.password.value = '\xA0\xA0\xA0\xA0\xA0\xA0\xA0\xA0';
+        this._lockUi();
+        this._openToast(message, true);
+      }
+
       /**
        * Attempt login with stored refresh token or using current access token stored in cookie
        */
