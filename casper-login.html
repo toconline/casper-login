@@ -320,8 +320,10 @@
       _signInResponse (notification) {
         switch (notification.status_code ) {
           case 200:
-            this._lockUi();
-            this.$.socket.loginListener(notification);
+            if ( notification.status && notification.response ) {
+              this._lockUi();
+              this.$.socket.loginListener(notification);
+            }
             break;
           case 401:
             if ( this._autoLogin === true ) {

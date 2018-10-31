@@ -8,8 +8,8 @@
     "paper-button": "PolymerElements/paper-button#^2.1.1",
     "paper-input": "PolymerElements/paper-input#^2.2.2",
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.4",
-    "casper-socket": "casper2020/casper-socket#^0.1.22",
-    "casper-icons": "casper2020/casper-icons#^0.2.2",
+    "casper-socket": "casper2020/casper-socket#^0.1.25",
+    "casper-icons": "casper2020/casper-icons#^0.2.6",
     "casper-button": "casper2020/casper-button#^0.1.2",
     "paper-toast": "PolymerElements/paper-toast#^2.1.1"
   },
