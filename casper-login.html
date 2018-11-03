@@ -129,7 +129,7 @@
     </style>
       <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
 
-      <paper-input id="email" name="email" label="Correio electrónico" tabindex="1"
+      <paper-input id="email" name="email" label="Correio eletrónico" tabindex="1"
                    auto-validate autocomplete="email" minlength="4" autofocus>
       </paper-input>
       <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
@@ -158,6 +158,8 @@
   </template>
 
   <script>
+    "use scrict";
+
     class CasperLogin extends Polymer.Element {
 
       static get is () {
