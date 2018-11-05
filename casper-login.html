@@ -193,6 +193,11 @@
             type: Boolean,
             value: false,
             observer: '_rememberChanged'
+          },
+          /** disable automatic loging */
+          noAutoLogin: {
+            type: Boolean,
+            value: false
           }
         }
       }
@@ -217,7 +222,9 @@
           console.warn('redirecting to the server that issued the credential => '+redirect);
           window.location = redirect;
         } else {
-          this._attemptAutomaticLogin();
+          if ( this.noAutoLogin !== true ) {
+            this._attemptAutomaticLogin();
+          }
         }
       }
 
@@ -233,6 +240,12 @@
         this.$.password.value = '\xA0\xA0\xA0\xA0\xA0\xA0\xA0\xA0';
         this._lockUi();
         this._openToast(message, true);
+      }
+
+      showErrorAndCleanup (message) {
+        this._showError(message);
+        this.$.email.value = '';
+        this.$.password.value = '';
       }
 
       /**
