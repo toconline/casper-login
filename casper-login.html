@@ -216,12 +216,7 @@
       connectedCallback () {
         super.connectedCallback();
 
-        let issuer = this.$.socket.issuerUrl;
-        if ( issuer !== undefined && window.location.origin !== issuer ) {
-          let redirect = window.location.href.replace(window.location.origin, issuer);
-          console.warn('redirecting to the server that issued the credential => '+redirect);
-          window.location = redirect;
-        } else {
+        if ( CasperLogin.redirectToIssuer(this.$.socket.issuerUrl) === false ) {
           if ( this.noAutoLogin !== true ) {
             this._attemptAutomaticLogin();
           }
@@ -554,6 +549,34 @@
       _tooltipFitInto (value) {
         if ( this.$ && this.$.toast ) {
           this.$.toast.fitInto = value;
+        }
+      }
+
+      /**
+       * Checks if redirection is needed
+       *
+       * @param {string} issuer URL of the server that issued the credential
+       * @return true redirect to issuer, false stay on the current server
+       */
+      static redirectToIssuer (issuer) {
+        if ( issuer === undefined ) {
+          return false; // issuer is unknown no need to redirect
+        }
+        if ( issuer === window.location.origin ) {
+          return false; // No need to redirect same url
+        } else {
+          let m1 = /http[s]*:\/\/([a-zA-Z]+)(\d)?\.(\w.+)/.exec(issuer);
+          let m2 = /http[s]*:\/\/([a-zA-Z]+)(\d)?\.(\w.+)/.exec(window.location.origin);
+
+          // Redirect ONLY if subdomain is the same excluding the cluster number and domain/port is the same
+          if ( m1 && m2 && m1.length === 4 && m2.length === 4 && m1[1] == m2[1] && m1[3] === m2[3]) {
+            let redirect = window.location.href.replace(window.location.origin, issuer);
+            console.warn('redirecting to the server that issued the credential => '+redirect);
+            window.location = redirect;
+            return true; // ** not reached ** Sister URLs do a redirect
+          } else {
+            return false; // unrelated URLs don't redirect
+          }
         }
       }
 
