@@ -413,8 +413,7 @@
       }
 
       _forgetPasswordResponse (notification) {
-
-        if ( notification.status === 'completed' && notification.status_code == 200 ) {
+        if ( notification.status === 'completed' ) {
           var response = notification.response;
           this.$.forgetPasswordJob.progress = 100;
           this.$.forgetPasswordJob.submitting(false);
@@ -426,6 +425,8 @@
             this._showSuccess('Instruções enviadas por email.');
             this._showLogin();
           }
+        }else {
+          this._showError('Erro na operação');
         }
       }
 
