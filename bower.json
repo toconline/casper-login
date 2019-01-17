@@ -10,7 +10,7 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.4",
     "casper-socket": "casper2020/casper-socket#^0.1.38",
     "casper-icons": "casper2020/casper-icons#^0.2.6",
-    "casper-button": "casper2020/casper-button#^0.1.2",
+    "casper-button": "casper2020/casper-button#^0.1.6",
     "paper-toast": "PolymerElements/paper-toast#^2.1.1"
   },
   "devDependencies": {
