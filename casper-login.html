@@ -135,7 +135,7 @@
       <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
                    auto-validate autocomplete="password" minlength="6">
       </paper-input>
-      <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Gravar dados de entrada</paper-checkbox>
+      <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Manter a sessão iniciada</paper-checkbox>
 
       <div class="buttons">
         <casper-button id="signIn" tabindex="5" on-tap="_signIn">
@@ -501,7 +501,11 @@
           if ( this.$.password.focused ) {
             this._signIn();
           } else if ( this.$.email.focused ) {
-            this.$.password.focus();
+            if ( this.$.password.value.length > 0 ) {
+              this._signIn();
+            } else {
+              this.$.password.focus();
+            }
           }
         } else {
           this._hideToast();
