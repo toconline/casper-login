@@ -127,7 +127,7 @@
       }
 
     </style>
-      <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
+      <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
 
       <paper-input id="email" name="email" label="Correio eletrónico" tabindex="1"
                    auto-validate autocomplete="email" minlength="4" autofocus>
@@ -209,6 +209,17 @@
         this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
         this.$.toast.fitInto = this;
         this._autoLogin = undefined;
+
+        try {
+          this.socketOptions = [
+            {key: 'x_brand', value: platformConfiguration.brand},
+            {key: 'x_product', value: platformConfiguration.product}
+          ];
+        } catch (e) {
+          this.socketOptions = [];
+        }
+
+
         this._resetValidation();
         this._showLogin();
       }
