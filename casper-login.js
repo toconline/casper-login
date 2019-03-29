@@ -27,7 +27,7 @@ import '@casper2020/casper-button/casper-button.js';
 import '@casper2020/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
-class CasperLogin extends PolymerElement {
+export class CasperLogin extends PolymerElement {
   static get template() {
     return html`
       <style>
