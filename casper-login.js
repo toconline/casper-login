@@ -18,6 +18,7 @@
   -
  */
 
+import { platformConfiguration } from '/platform-configuration.js';
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
@@ -28,7 +29,8 @@ import '@casper2020/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
 export class CasperLogin extends PolymerElement {
-  static get template() {
+
+  static get template () {
     return html`
       <style>
         :host {
@@ -123,11 +125,15 @@ export class CasperLogin extends PolymerElement {
         }
 
       </style>
-        <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain="[[cookieDomain]]"></casper-socket>
+        <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
 
-        <paper-input id="email" name="email" label="Correio eletrónico" tabindex="1" auto-validate="" autocomplete="email" minlength="4" autofocus=""></paper-input>
-        <paper-input id="password" name="password" label="Senha" type="password" tabindex="2" auto-validate="" autocomplete="password" minlength="6"></paper-input>
-        <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Gravar dados de entrada</paper-checkbox>
+        <paper-input id="email" name="email" label="Correio eletrónico" tabindex="1"
+                     auto-validate autocomplete="email" minlength="4" autofocus>
+        </paper-input>
+        <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
+                     auto-validate autocomplete="password" minlength="6">
+        </paper-input>
+        <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Manter a sessão iniciada</paper-checkbox>
 
         <div class="buttons">
           <casper-button id="signIn" tabindex="5" on-tap="_signIn">
@@ -140,12 +146,12 @@ export class CasperLogin extends PolymerElement {
         </div>
 
         <div id="userAction" class="user_actions">
-          <a id="forget_form" href="#" on-tap="_forgotPassword" tabindex="-1">Esqueceu-se da sua senha?</a>
-          <a id="login_form" href="#" on-tap="_signInForm" tabindex="-1">Preencher dados de login.</a>
+          <a id='forget_form' href='#' on-tap="_forgotPassword" tabindex="-1">Esqueceu-se da sua senha?</a>
+          <a id='login_form'  href='#' on-tap="_signInForm"     tabindex="-1">Preencher dados de login.</a>
         </div>
 
       <paper-toast id="toast" duration="5000">
-        <iron-icon id="closeToast" on-tap="_hideToast" icon="casper-icons:cancel"></iron-icon>
+        <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"/></iron-icon>
       </paper-toast>
     `;
   }
@@ -197,6 +203,17 @@ export class CasperLogin extends PolymerElement {
     this.$.password.addEventListener('focused-changed', e => this._onFocusChange(e));
     this.$.toast.fitInto = this;
     this._autoLogin = undefined;
+
+    try {
+      this.socketOptions = [
+        {key: 'x_brand', value: platformConfiguration.brand},
+        {key: 'x_product', value: platformConfiguration.product}
+      ];
+    } catch (e) {
+      this.socketOptions = [];
+    }
+
+
     this._resetValidation();
     this._showLogin();
   }
@@ -489,7 +506,11 @@ export class CasperLogin extends PolymerElement {
       if ( this.$.password.focused ) {
         this._signIn();
       } else if ( this.$.email.focused ) {
-        this.$.password.focus();
+        if ( this.$.password.value.length > 0 ) {
+          this._signIn();
+        } else {
+          this.$.password.focus();
+        }
       }
     } else {
       this._hideToast();
@@ -568,6 +589,7 @@ export class CasperLogin extends PolymerElement {
       }
     }
   }
+
 }
 
 window.customElements.define(CasperLogin.is, CasperLogin);

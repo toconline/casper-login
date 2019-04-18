@@ -18,6 +18,7 @@
   -
 */
 
+import { platformConfiguration } from '/platform-configuration.js';
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
@@ -27,10 +28,6 @@ import '@casper2020/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js'
 
 class CasperRecoverPassword extends PolymerElement {
-
-  static get is () {
-    return 'casper-recover-password';
-  }
 
   static get template () {
     return html`
@@ -118,7 +115,7 @@ class CasperRecoverPassword extends PolymerElement {
         }
 
       </style>
-        <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]]></casper-socket>
+        <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
         <paper-input disabled value="[[user_email]]" id="email" name="email" label="Correio eletrónico" tabindex="1"
                      auto-validate autocomplete="email" minlength="4">
         </paper-input>
@@ -140,9 +137,13 @@ class CasperRecoverPassword extends PolymerElement {
         </div>
 
       <paper-toast id="toast" duration="2000">
-        <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"></iron-icon>
+        <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"/></iron-icon>
       </paper-toast>
     `;
+  }
+
+  static get is () {
+    return 'casper-recover-password';
   }
 
   static _b64EncodeUnicode (str) {
@@ -183,6 +184,15 @@ class CasperRecoverPassword extends PolymerElement {
     this.$.new_password_confirmation.addEventListener('keydown',          e => this._onKeyDown(e));
     this.$.new_password.addEventListener('focused-changed',               e => this._onFocusChange(e));
     this.$.new_password_confirmation.addEventListener('focused-changed',  e => this._onFocusChange(e));
+
+    try {
+      this.socketOptions = [
+        { key: 'x_brand', value: platformConfiguration.brand },
+        { key: 'x_product', value: platformConfiguration.product }
+      ];
+    } catch (e) {
+      this.socketOptions = [];
+    }
     this._resetValidation();
   }
 
