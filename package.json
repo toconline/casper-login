@@ -1,7 +1,7 @@
 {
   "description": "UI elements for casper server login",
   "name": "@casper2020/casper-login",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0",
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",
@@ -10,9 +10,9 @@
   },
   "main": "casper-login.js",
   "dependencies": {
-    "@casper2020/casper-button": "^1.0.0-rc.1",
-    "@casper2020/casper-icons": "^1.0.0-rc.1",
-    "@casper2020/casper-socket": "^1.0.0-rc.1",
+    "@casper2020/casper-button": "^1.x",
+    "@casper2020/casper-icons": "^1.x",
+    "@casper2020/casper-socket": "^1.x",
     "@polymer/paper-button": "^3.0.0",
     "@polymer/paper-checkbox": "^3.0.0",
     "@polymer/paper-input": "^3.0.0",
