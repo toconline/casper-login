@@ -365,7 +365,7 @@ class CasperRecoverPassword extends PolymerElement {
 
   _expiredLock () {
     this._lockUi();
-    this.$.toast.onclick = () => window.location = '/login';
+    this.$.toast.onclick = () => window.location = `/login?recover=${this.user_email}`;
     this.$.submitButton.style.visibility = 'hidden';
     this._openToast('O link de recuperação expirou ou já foi utilizado, clique para obter um novo!', {duration: 0});
   }

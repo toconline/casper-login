@@ -215,7 +215,13 @@ export class CasperLogin extends PolymerElement {
 
 
     this._resetValidation();
-    this._showLogin();
+    if (window.location.search != "" && window.location.search.substring(1).split("=").length == 2) {
+      var suggested_email = window.location.search.substring(1).split("=")[1];
+      this.$.email.value = suggested_email;
+      this._showForgetPassword();
+    }else{
+      this._showLogin();
+    }
   }
 
   connectedCallback () {
