@@ -325,7 +325,7 @@ export class CasperLogin extends PolymerElement {
     // ... submit login request to the login tube ...
     this.$.socket.submitJob({
         tube:     this.$.socket.loginTube,
-        email:    this.$.email.value,
+        email:    this.$.email.value.trim(),
         password: btoa(encodeURIComponent(this.$.password.value)),
         remember: this.remember,
         last_entity_id: window.localStorage.getItem('casper-last-entity-id')
@@ -411,7 +411,7 @@ export class CasperLogin extends PolymerElement {
       this._lockUi();
       this.$.socket.submitJob({
           tube: this.$.socket.tubePrefix + '-recover-password',
-          email: this.$.email.value
+          email: this.$.email.value.trim()
         },
         this._forgetPasswordResponse.bind(this), {
           ttr: Math.max(this.timeout - 5, 5),
