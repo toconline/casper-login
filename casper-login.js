@@ -357,6 +357,9 @@ export class CasperLogin extends PolymerElement {
           this._showPasswordError();
         }
         break;
+      case 423:
+        this._showError(`O seu acesso foi suspenso em ${new Date(notification.response.locked_at).toLocaleDateString()}.`);
+        break;
       case 504:
         this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
         break;
