@@ -13,12 +13,12 @@
     "@casper2020/casper-button": "^1.x",
     "@casper2020/casper-icons": "^1.x",
     "@casper2020/casper-socket": "^2.x",
-    "@polymer/paper-button": "^3.0.0",
-    "@polymer/paper-checkbox": "^3.0.0",
-    "@polymer/paper-input": "^3.0.0",
-    "@polymer/paper-spinner": "^3.0.0",
-    "@polymer/paper-toast": "^3.0.0",
-    "@polymer/polymer": "^3.0.0"
+    "@polymer/paper-button": "^3.x",
+    "@polymer/paper-checkbox": "^3.x",
+    "@polymer/paper-input": "^3.x",
+    "@polymer/paper-spinner": "^3.x",
+    "@polymer/paper-toast": "^3.x",
+    "@polymer/polymer": "^3.x"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.0.0",
