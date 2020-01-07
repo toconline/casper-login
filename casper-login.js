@@ -296,7 +296,7 @@ export class CasperLogin extends PolymerElement {
   /**
    * Event handler for sign-in button, attemps auto login first, if its not possible then performs normal login
    */
-  _signIn (event) {
+  async _signIn (event) {
 
     // ... attempt automatic login 1st ...
     if ( this._attemptAutomaticLogin() === true ) {
@@ -322,8 +322,53 @@ export class CasperLogin extends PolymerElement {
     this._hideToast();
     this.$.signIn.submitting(true);
 
+    try {
+      const credential = 'basic ' + btoa(`${this.$.email.value.trim()}:${encodeURIComponent(this.$.password.value)}`);
+      const request = await fetch('/login/sign-in', {
+                          headers: {
+                            Authorization: credential,
+                            'Content-Type': 'application/json'
+                          }
+                        });
+      switch (request.status ) {
+        case 200:
+          this._lockUi();
+          this.$.socket.loginListener({status: 'completed' , status_code: 200, response: await request.json()});
+          break;
+        case 401:
+          if ( this._autoLogin === true ) {
+            this._showError('Credencial expirada, re-introduza email e senha');
+            this.$.socket.wipeCredentials();
+            this.$.password.value = '';
+            this.$.email.$.nativeInput.select();
+            this.$.toast.setAttribute('success', '');
+          } else {
+            this._showPasswordError();
+          }
+          break;
+        case 406:
+          //await request.json();
+          this._showError(notification.message[0]); // TODO
+          break;
+        case 423:
+          //await request.json();
+          this._showError(`O seu acesso foi suspenso em ${new Date(notification.response.locked_at).toLocaleDateString()}.`);
+          break;
+        case 504:
+          this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
+          break;
+        case 500:
+        default:
+          this._showError('Serviço Indisponível, p.f. tente mais tarde.');
+          break;
+      }
+    } catch (exception) {
+      console.log(exception);
+      this._showError(`Serviço Indisponível (${exception})`);
+    }
+
     // ... submit login request to the login tube ...
-    this.$.socket.submitJob({
+    /*this.$.socket.submitJob({
         tube:     this.$.socket.loginTube,
         email:    this.$.email.value.trim(),
         password: btoa(encodeURIComponent(this.$.password.value)),
@@ -336,9 +381,10 @@ export class CasperLogin extends PolymerElement {
         timeout: this.timeout
       }
     );
+    */
   }
 
-  _signInResponse (notification) {
+  /*_signInResponse (notification) {
     switch (notification.status_code ) {
       case 200:
         if ( notification.status && notification.response ) {
@@ -371,7 +417,7 @@ export class CasperLogin extends PolymerElement {
         this._showError('Serviço Indisponível, p.f. tente mais tarde.');
         break;
     }
-  }
+  }*/
 
   _showLogin () {
     this.$.signIn.style.display = 'block';
