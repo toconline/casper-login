@@ -366,58 +366,7 @@ export class CasperLogin extends PolymerElement {
       console.log(exception);
       this._showError(`Serviço Indisponível (${exception})`);
     }
-
-    // ... submit login request to the login tube ...
-    /*this.$.socket.submitJob({
-        tube:     this.$.socket.loginTube,
-        email:    this.$.email.value.trim(),
-        password: btoa(encodeURIComponent(this.$.password.value)),
-        remember: this.remember,
-        last_entity_id: window.localStorage.getItem('casper-last-entity-id')
-      },
-      this._signInResponse.bind(this), {
-        ttr: Math.max(this.timeout - 5, 5),
-        validity: this.timeout,
-        timeout: this.timeout
-      }
-    );
-    */
   }
-
-  /*_signInResponse (notification) {
-    switch (notification.status_code ) {
-      case 200:
-        if ( notification.status && notification.response ) {
-          this._lockUi();
-          this.$.socket.loginListener(notification);
-        }
-        break;
-      case 401:
-        if ( this._autoLogin === true ) {
-          this._showError('Credencial expirada, re-introduza email e senha');
-          this.$.socket.wipeCredentials();
-          this.$.password.value = '';
-          this.$.email.$.nativeInput.select();
-          this.$.toast.setAttribute('success', '');
-        } else {
-          this._showPasswordError();
-        }
-        break;
-      case 406:
-        this._showError(notification.message[0]);
-        break;
-      case 423:
-        this._showError(`O seu acesso foi suspenso em ${new Date(notification.response.locked_at).toLocaleDateString()}.`);
-        break;
-      case 504:
-        this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
-        break;
-      case 500:
-      default:
-        this._showError('Serviço Indisponível, p.f. tente mais tarde.');
-        break;
-    }
-  }*/
 
   _showLogin () {
     this.$.signIn.style.display = 'block';

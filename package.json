@@ -12,7 +12,7 @@
   "dependencies": {
     "@casper2020/casper-button": "^1.x",
     "@casper2020/casper-icons": "^1.x",
-    "@casper2020/casper-socket": "^2.x",
+    "@casper2020/casper-socket": "^3.x",
     "@polymer/paper-button": "^3.x",
     "@polymer/paper-checkbox": "^3.x",
     "@polymer/paper-input": "^3.x",
