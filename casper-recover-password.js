@@ -256,42 +256,25 @@ class CasperRecoverPassword extends PolymerElement {
     event.preventDefault();
   }
 
-  _sendToRemote (withPassword) {
-    let extra_params = {
-      jwt: this.jwt
-    }
+  async _sendToRemote (withPassword) {
+    let body;
+
     if ( withPassword ) {
-      extra_params.password_confirmation = btoa(encodeURIComponent(this.$.new_password_confirmation.value));
+      body = { jwt: this.jwt, password_confirmation: btoa(encodeURIComponent(this.$.new_password_confirmation.value.trim()))};
+    } else {
+      body = { jwt: this.jwt };
     }
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", '/jobs', true);
-    xhr.setRequestHeader("Content-type",            "application/text");
-    xhr.setRequestHeader("Accept",                  "application/json");
-    xhr.setRequestHeader("Casper-Extra-Job-Params", CasperRecoverPassword._b64EncodeUnicode(JSON.stringify(extra_params)));
-
-    xhr.onreadystatechange = this._handleXhrResponse.bind(this);
-    xhr.send(this.jwt);
     this.$.submitButton.submitting(true);
-  }
-
-  _handleXhrResponse (event) {
-    const xhr = event.srcElement;
-
-    if ( xhr.readyState === XMLHttpRequest.DONE ) {
-      let response;
-
-      try {
-        response = JSON.parse(xhr.response);
-      } catch (e) {
-        response.success     = false;
-        response.status_code = 500;
-        response.error       = 'Erro inesperado, tente mais tarde';
-      }
+    try {
+      const request = await fetch('/login/sign-reset', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+      });
+      const response = await request.json();
       this.$.submitButton.progress = 100;
-
-      switch (xhr.status) {
-        case 401:
+      switch (request.status) {
+        case 400:
           if ( response.jwt_expired !== undefined ) {
             if ( response.jwt_expired === true ) {
               this._expiredLock();
@@ -321,8 +304,10 @@ class CasperRecoverPassword extends PolymerElement {
         default:
           this._showError('Erro inesperado ao redefinir senha, por favor tente de novo!');
           break;
-        }
-    }
+      }
+    } catch (exception) {
+      this._showError('Erro inesperado ao redefinir senha, por favor tente de novo!');
+    } 
   }
 
   _redirect (url) {

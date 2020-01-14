@@ -216,7 +216,7 @@ export class CasperLogin extends PolymerElement {
 
     this._resetValidation();
     if (window.location.search != "" && window.location.search.substring(1).split("=").length == 2) {
-      var suggested_email = window.location.search.substring(1).split("=")[1];
+      const suggested_email = window.location.search.substring(1).split("=")[1];
       this.$.email.value = suggested_email;
       this._showForgetPassword();
     }else{
@@ -257,10 +257,10 @@ export class CasperLogin extends PolymerElement {
   /**
    * Attempt login with stored refresh token or using current access token stored in cookie
    */
-  _attemptAutomaticLogin () {
-    let email         = this.$.socket.savedEmail;
-    let refresh_token = this.$.socket.savedCredential;
-    let access_token  = this.$.socket.sessionCookie;
+  async _attemptAutomaticLogin () {
+    const email         = this.$.socket.savedEmail;
+    const refresh_token = this.$.socket.savedCredential;
+    const access_token  = this.$.socket.sessionCookie;
     if ( (email && refresh_token) || access_token ) {
       this.$.signIn.disabled = true;
       this.$.signIn.submitting(true);
@@ -273,20 +273,25 @@ export class CasperLogin extends PolymerElement {
       } else {
         this._openToast('Renovação de sessão iniciada', true);
       }
-      this.$.socket.submitJob({
-          tube:          this.$.socket.refreshTube,
-          refresh_token: refresh_token,
-          access_token:  access_token,
-          last_entity_id: window.localStorage.getItem('casper-last-entity-id')
-        },
-        this._signInResponse.bind(this), {
-          ttr: Math.max(this.timeout - 5, 5),
-          validity: this.timeout,
-          timeout: this.timeout
-        }
-      );
-      this._autoLogin = true;
-      return true;
+      try {
+        const request = await fetch('/login/sign-refresh', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              refresh_token:  refresh_token,
+              access_token:   access_token,
+              last_entity_id: window.localStorage.getItem('casper-last-entity-id')
+            })
+        });
+        this._signInResponse(request);
+        this._autoLogin = true;
+        return true;
+      } catch (exception) {
+        console.log(exception);
+        this._showError(`Serviço Indisponível (${exception})`);
+      }
     } else {
       this._autoLogin = false;
       return false;
@@ -330,41 +335,43 @@ export class CasperLogin extends PolymerElement {
                             'Content-Type': 'application/json'
                           }
                         });
-      switch (request.status ) {
-        case 200:
-          this._lockUi();
-          this.$.socket.loginListener({status: 'completed' , status_code: 200, response: await request.json()});
-          break;
-        case 401:
-          if ( this._autoLogin === true ) {
-            this._showError('Credencial expirada, re-introduza email e senha');
-            this.$.socket.wipeCredentials();
-            this.$.password.value = '';
-            this.$.email.$.nativeInput.select();
-            this.$.toast.setAttribute('success', '');
-          } else {
-            this._showPasswordError();
-          }
-          break;
-        case 406:
-          //await request.json();
-          this._showError(notification.message[0]); // TODO
-          break;
-        case 423:
-          //await request.json();
-          this._showError(`O seu acesso foi suspenso em ${new Date(notification.response.locked_at).toLocaleDateString()}.`);
-          break;
-        case 504:
-          this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
-          break;
-        case 500:
-        default:
-          this._showError('Serviço Indisponível, p.f. tente mais tarde.');
-          break;
-      }
+      this._signInResponse(request);
     } catch (exception) {
       console.log(exception);
       this._showError(`Serviço Indisponível (${exception})`);
+    }
+  }
+
+  async _signInResponse (request) {
+    switch (request.status ) {
+      case 200:
+        this._lockUi();
+        this.$.socket.loginListener({status: 'completed' , status_code: 200, response: await request.json()});
+        break;
+      case 401:
+        if ( this._autoLogin === true ) {
+          this._showError('Credencial expirada, re-introduza email e senha');
+          this.$.socket.wipeCredentials();
+          this.$.password.value = '';
+          this.$.email.$.nativeInput.select();
+          this.$.toast.setAttribute('success', '');
+        } else {
+          this._showPasswordError();
+        }
+        break;
+      case 406:
+        this._showError((await request.json()).error);
+        break;
+      case 423:
+        this._showError(`O seu acesso foi suspenso em ${new Date((await request.json()).locked_at).toLocaleDateString()}.`);
+        break;
+      case 504:
+        this._showError('Tempo máximo de espera ultrapassado, p.f. tente mais tarde.');
+        break;
+      case 500:
+      default:
+        this._showError('Serviço Indisponível, p.f. tente mais tarde.');
+        break;
     }
   }
 
@@ -402,7 +409,7 @@ export class CasperLogin extends PolymerElement {
     event.preventDefault();
   }
 
-  _forgetPasswordJob (event) {
+  async _forgetPasswordJob (event) {
     if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
       this.$.email.invalid = true;
       this.$.email.focus();
@@ -410,36 +417,34 @@ export class CasperLogin extends PolymerElement {
       return;
     } else {
       this._lockUi();
-      this.$.socket.submitJob({
-          tube: this.$.socket.tubePrefix + '-recover-password',
-          email: this.$.email.value.trim()
-        },
-        this._forgetPasswordResponse.bind(this), {
-          ttr: Math.max(this.timeout - 5, 5),
-          validity: this.timeout,
-          timeout: this.timeout
+      try {
+        const request = await fetch('/login/sign-forgot', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: this.$.email.value.trim()})
+        });
+        if ( request.status === 200 ) {
+          const response = await request.json();
+          this.$.forgetPasswordJob.progress = 100;
+          this.$.forgetPasswordJob.submitting(false);
+          this._unlockUi();
+    
+          if ( response.success == false ) {
+            this._showError('Email não encontrado.');
+          } else {
+            this._showSuccess('Instruções enviadas por email.');
+            this._showLogin();
+          }
+        } else {
+          this._showError('Erro na operação');
         }
-      );
+      } catch (exception) {
+        this._showError('Erro na operação');
+      }
     }
     event.preventDefault();
-  }
-
-  _forgetPasswordResponse (notification) {
-    if ( notification.status === 'completed' ) {
-      var response = notification.response;
-      this.$.forgetPasswordJob.progress = 100;
-      this.$.forgetPasswordJob.submitting(false);
-      this._unlockUi();
-
-      if ( response.success == false ) {
-        this._showError('Email não encontrado.');
-      } else {
-        this._showSuccess('Instruções enviadas por email.');
-        this._showLogin();
-      }
-    }else {
-      this._showError('Erro na operação');
-    }
   }
 
   _openToast (message, success) {
