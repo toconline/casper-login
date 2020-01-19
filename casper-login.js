@@ -19,11 +19,10 @@
  */
 
 import { platformConfiguration } from '/platform-configuration.js';
-import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
 import '@polymer/paper-checkbox/paper-checkbox.js';
-import '@casper2020/casper-icons/casper-icons.js';
+import '@casper2020/casper-icons/casper-icon.js';
 import '@casper2020/casper-button/casper-button.js';
 import '@casper2020/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
@@ -151,7 +150,7 @@ export class CasperLogin extends PolymerElement {
         </div>
 
       <paper-toast id="toast" duration="5000">
-        <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"/></iron-icon>
+        <casper-icon id="closeToast" on-tap="_hideToast" icon="fa-solid:times-circle"/></casper-icon>
       </paper-toast>
     `;
   }
@@ -206,8 +205,8 @@ export class CasperLogin extends PolymerElement {
 
     try {
       this.socketOptions = [
-        {key: 'x_brand', value: platformConfiguration.brand},
-        {key: 'x_product', value: platformConfiguration.product}
+        { key: 'x_brand', value: platformConfiguration.brand },
+        { key: 'x_product', value: platformConfiguration.product }
       ];
     } catch (e) {
       this.socketOptions = [];
@@ -219,7 +218,7 @@ export class CasperLogin extends PolymerElement {
       const suggested_email = window.location.search.substring(1).split("=")[1];
       this.$.email.value = suggested_email;
       this._showForgetPassword();
-    }else{
+    } else {
       this._showLogin();
     }
   }
@@ -227,8 +226,8 @@ export class CasperLogin extends PolymerElement {
   connectedCallback () {
     super.connectedCallback();
 
-    if ( CasperLogin.redirectToIssuer(this.$.socket.issuerUrl) === false ) {
-      if ( this.noAutoLogin !== true ) {
+    if (CasperLogin.redirectToIssuer(this.$.socket.issuerUrl) === false) {
+      if (this.noAutoLogin !== true) {
         this._attemptAutomaticLogin();
       }
     }
@@ -258,14 +257,14 @@ export class CasperLogin extends PolymerElement {
    * Attempt login with stored refresh token or using current access token stored in cookie
    */
   async _attemptAutomaticLogin () {
-    const email         = this.$.socket.savedEmail;
+    const email = this.$.socket.savedEmail;
     const refresh_token = this.$.socket.savedCredential;
-    const access_token  = this.$.socket.sessionCookie;
-    if ( (email && refresh_token) || access_token ) {
+    const access_token = this.$.socket.sessionCookie;
+    if ((email && refresh_token) || access_token) {
       this.$.signIn.disabled = true;
       this.$.signIn.submitting(true);
       this._lockUi();
-      if ( email && refresh_token ) {
+      if (email && refresh_token) {
         this.$.email.value = email;
         this.$.password.value = '\xA0\xA0\xA0\xA0\xA0\xA0\xA0\xA0';
         this.remember = true;
@@ -275,15 +274,15 @@ export class CasperLogin extends PolymerElement {
       }
       try {
         const request = await fetch('/login/sign-refresh', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              refresh_token:  refresh_token,
-              access_token:   access_token,
-              last_entity_id: window.localStorage.getItem('casper-last-entity-id')
-            })
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            refresh_token: refresh_token,
+            access_token: access_token,
+            last_entity_id: window.localStorage.getItem('casper-last-entity-id')
+          })
         });
         this._signInResponse(request);
         this._autoLogin = true;
@@ -304,18 +303,18 @@ export class CasperLogin extends PolymerElement {
   async _signIn (event) {
 
     // ... attempt automatic login 1st ...
-    if ( this._attemptAutomaticLogin() === true ) {
+    if (this._attemptAutomaticLogin() === true) {
       return;  // ... auto login kicked in return now ...
     }
 
     // ... inputs validation ...
-    if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
+    if (this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0) {
       this.$.email.invalid = true;
       this.$.email.focus();
       this.$.signIn.submitting(false);
       return;
     }
-    if ( this.$.password.invalid || this.$.password.value === undefined || this.$.password.value.length === 0 ) {
+    if (this.$.password.invalid || this.$.password.value === undefined || this.$.password.value.length === 0) {
       this.$.password.invalid = true;
       this.$.password.focus();
       this.$.signIn.submitting(false);
@@ -330,11 +329,11 @@ export class CasperLogin extends PolymerElement {
     try {
       const credential = 'basic ' + btoa(`${this.$.email.value.trim()}:${encodeURIComponent(this.$.password.value)}`);
       const request = await fetch('/login/sign-in', {
-                          headers: {
-                            Authorization: credential,
-                            'Content-Type': 'application/json'
-                          }
-                        });
+        headers: {
+          Authorization: credential,
+          'Content-Type': 'application/json'
+        }
+      });
       this._signInResponse(request);
     } catch (exception) {
       console.log(exception);
@@ -343,13 +342,13 @@ export class CasperLogin extends PolymerElement {
   }
 
   async _signInResponse (request) {
-    switch (request.status ) {
+    switch (request.status) {
       case 200:
         this._lockUi();
-        this.$.socket.loginListener({status: 'completed' , status_code: 200, response: await request.json()});
+        this.$.socket.loginListener({ status: 'completed', status_code: 200, response: await request.json() });
         break;
       case 401:
-        if ( this._autoLogin === true ) {
+        if (this._autoLogin === true) {
           this._showError('Credencial expirada, re-introduza email e senha');
           this.$.socket.wipeCredentials();
           this.$.password.value = '';
@@ -410,7 +409,7 @@ export class CasperLogin extends PolymerElement {
   }
 
   async _forgetPasswordJob (event) {
-    if ( this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0 ) {
+    if (this.$.email.invalid || this.$.email.value === undefined || this.$.email.value.length === 0) {
       this.$.email.invalid = true;
       this.$.email.focus();
       this.$.signIn.submitting(false);
@@ -419,19 +418,19 @@ export class CasperLogin extends PolymerElement {
       this._lockUi();
       try {
         const request = await fetch('/login/sign-forgot', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: this.$.email.value.trim()})
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: this.$.email.value.trim() })
         });
-        if ( request.status === 200 ) {
+        if (request.status === 200) {
           const response = await request.json();
           this.$.forgetPasswordJob.progress = 100;
           this.$.forgetPasswordJob.submitting(false);
           this._unlockUi();
-    
-          if ( response.success == false ) {
+
+          if (response.success == false) {
             this._showError('Email não encontrado.');
           } else {
             this._showSuccess('Instruções enviadas por email.');
@@ -448,8 +447,8 @@ export class CasperLogin extends PolymerElement {
   }
 
   _openToast (message, success) {
-    if ( success !== undefined ) {
-      if ( success ) {
+    if (success !== undefined) {
+      if (success) {
         this.$.toast.setAttribute('success', '');
       } else {
         this.$.toast.removeAttribute('success');
@@ -514,11 +513,11 @@ export class CasperLogin extends PolymerElement {
   }
 
   _onKeyDown (event) {
-    if ( event.keyCode === 13 ) {
-      if ( this.$.password.focused ) {
+    if (event.keyCode === 13) {
+      if (this.$.password.focused) {
         this._signIn();
-      } else if ( this.$.email.focused ) {
-        if ( this.$.password.value.length > 0 ) {
+      } else if (this.$.email.focused) {
+        if (this.$.password.value.length > 0) {
           this._signIn();
         } else {
           this.$.password.focus();
@@ -543,7 +542,7 @@ export class CasperLogin extends PolymerElement {
    * After the login error password is focused, when the focus moves out hide the tooltip
    */
   _onFocusChange (event) {
-    if ( event.detail.value == false && event.target.id === 'password') {
+    if (event.detail.value == false && event.target.id === 'password') {
       this._hideToast();
     }
   }
@@ -554,7 +553,7 @@ export class CasperLogin extends PolymerElement {
    * @param value current value of the checkbox element
    */
   _rememberChanged (value) {
-    if ( value === false && this._autoLogin !== undefined && this.$.socket.savedCredential ) {
+    if (value === false && this._autoLogin !== undefined && this.$.socket.savedCredential) {
       this.$.socket.wipeCredentials();
       this.$.password.value = '';
       this.$.email.$.nativeInput.select();
@@ -569,7 +568,7 @@ export class CasperLogin extends PolymerElement {
    * @param {object} value the HTML element that contains the tooltip
    */
   _tooltipFitInto (value) {
-    if ( this.$ && this.$.toast ) {
+    if (this.$ && this.$.toast) {
       this.$.toast.fitInto = value;
     }
   }
@@ -581,19 +580,19 @@ export class CasperLogin extends PolymerElement {
    * @return true redirect to issuer, false stay on the current server
    */
   static redirectToIssuer (issuer) {
-    if ( issuer === undefined ) {
+    if (issuer === undefined) {
       return false; // issuer is unknown no need to redirect
     }
-    if ( issuer === window.location.origin ) {
+    if (issuer === window.location.origin) {
       return false; // No need to redirect same url
     } else {
       let m1 = /http[s]*:\/\/([a-zA-Z]+)(\d)?\.(\w.+)/.exec(issuer);
       let m2 = /http[s]*:\/\/([a-zA-Z]+)(\d)?\.(\w.+)/.exec(window.location.origin);
 
       // Redirect ONLY if subdomain is the same excluding the cluster number and domain/port is the same
-      if ( m1 && m2 && m1.length === 4 && m2.length === 4 && m1[1] == m2[1] && m1[3] === m2[3]) {
+      if (m1 && m2 && m1.length === 4 && m2.length === 4 && m1[1] == m2[1] && m1[3] === m2[3]) {
         let redirect = window.location.href.replace(window.location.origin, issuer);
-        console.warn('redirecting to the server that issued the credential => '+redirect);
+        console.warn('redirecting to the server that issued the credential => ' + redirect);
         window.location = redirect;
         return true; // ** not reached ** Sister URLs do a redirect
       } else {

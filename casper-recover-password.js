@@ -19,10 +19,9 @@
 */
 
 import { platformConfiguration } from '/platform-configuration.js';
-import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
-import '@casper2020/casper-icons/casper-icons.js';
+import '@casper2020/casper-icons/casper-icon.js';
 import '@casper2020/casper-button/casper-button.js';
 import '@casper2020/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js'
@@ -137,7 +136,7 @@ class CasperRecoverPassword extends PolymerElement {
         </div>
 
       <paper-toast id="toast" duration="2000">
-        <iron-icon id="closeToast"  on-tap="_hideToast" icon="casper-icons:cancel"/></iron-icon>
+        <casper-icon id="closeToast" on-tap="_hideToast" icon="fa-solid:times-circle"/></casper-icon>
       </paper-toast>
     `;
   }
@@ -148,9 +147,9 @@ class CasperRecoverPassword extends PolymerElement {
 
   static _b64EncodeUnicode (str) {
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-    function toSolidBytes(match, p1) {
-      return String.fromCharCode('0x' + p1);
-    }));
+      function toSolidBytes (match, p1) {
+        return String.fromCharCode('0x' + p1);
+      }));
   }
 
   static get properties () {
@@ -172,7 +171,7 @@ class CasperRecoverPassword extends PolymerElement {
     let regex = /[?&]([^=#]+)=([^&#]*)/g;
     let params = {};
     let match;
-    while ( match = regex.exec(url) ) {
+    while (match = regex.exec(url)) {
       params[match[1]] = match[2];
     }
     return params;
@@ -180,10 +179,10 @@ class CasperRecoverPassword extends PolymerElement {
 
   ready () {
     super.ready();
-    this.$.new_password.addEventListener('keydown',                       e => this._onKeyDown(e));
-    this.$.new_password_confirmation.addEventListener('keydown',          e => this._onKeyDown(e));
-    this.$.new_password.addEventListener('focused-changed',               e => this._onFocusChange(e));
-    this.$.new_password_confirmation.addEventListener('focused-changed',  e => this._onFocusChange(e));
+    this.$.new_password.addEventListener('keydown', e => this._onKeyDown(e));
+    this.$.new_password_confirmation.addEventListener('keydown', e => this._onKeyDown(e));
+    this.$.new_password.addEventListener('focused-changed', e => this._onFocusChange(e));
+    this.$.new_password_confirmation.addEventListener('focused-changed', e => this._onFocusChange(e));
 
     try {
       this.socketOptions = [
@@ -205,14 +204,14 @@ class CasperRecoverPassword extends PolymerElement {
       let url_parameters = CasperRecoverPassword.decodeUrlParams(document.location.href);
       this.jwt = url_parameters.s;
       let jwt_parsed = JSON.parse(atob(url_parameters.s.split(".")[1]));
-      this.cluster =  jwt_parsed.job.payload.cluster;
+      this.cluster = jwt_parsed.job.payload.cluster;
       this.user_email = jwt_parsed.job.payload.email;
 
       // Check if the JWT is still valid
       let validty = new Date(0);
       validty.setUTCSeconds(jwt_parsed.exp);
 
-      if( validty < new Date() ) {
+      if (validty < new Date()) {
         this._expiredLock();          // JWT expired lock the UI
       } else {
         this._sendToRemote(false);    // JWT valid but ask the server if it's still available
@@ -225,25 +224,25 @@ class CasperRecoverPassword extends PolymerElement {
 
   _submitNewPassword (event) {
     const new_password_test = this.$.new_password.invalid
-                              || this.$.new_password.value === undefined
-                              || this.$.new_password.value.length === 0;
+      || this.$.new_password.value === undefined
+      || this.$.new_password.value.length === 0;
     const new_password_confirmation_test = this.$.new_password_confirmation.invalid
-                                           || this.$.new_password_confirmation.value === undefined
-                                           || this.$.new_password_confirmation.value.length === 0;
+      || this.$.new_password_confirmation.value === undefined
+      || this.$.new_password_confirmation.value.length === 0;
     const not_match = this.$.new_password.value != this.$.new_password_confirmation.value;
 
-    if ( new_password_test || new_password_confirmation_test || not_match ) {
-      if ( not_match ) {
+    if (new_password_test || new_password_confirmation_test || not_match) {
+      if (not_match) {
         this._openToast('As senhas que introduziu não coincidem');
         return;
       }
 
-      if ( new_password_test ) {
+      if (new_password_test) {
         this.$.new_password.invalid = true;
         this.$.new_password.focus();
       }
 
-      if ( new_password_confirmation_test ) {
+      if (new_password_confirmation_test) {
         this.$.new_password_confirmation.invalid = true;
         this.$.new_password_confirmation.focus();
       }
@@ -259,24 +258,24 @@ class CasperRecoverPassword extends PolymerElement {
   async _sendToRemote (withPassword) {
     let body;
 
-    if ( withPassword ) {
-      body = { jwt: this.jwt, password_confirmation: btoa(encodeURIComponent(this.$.new_password_confirmation.value.trim()))};
+    if (withPassword) {
+      body = { jwt: this.jwt, password_confirmation: btoa(encodeURIComponent(this.$.new_password_confirmation.value.trim())) };
     } else {
       body = { jwt: this.jwt };
     }
     this.$.submitButton.submitting(true);
     try {
       const request = await fetch('/login/sign-reset', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
       });
       const response = await request.json();
       this.$.submitButton.progress = 100;
       switch (request.status) {
         case 400:
-          if ( response.jwt_expired !== undefined ) {
-            if ( response.jwt_expired === true ) {
+          if (response.jwt_expired !== undefined) {
+            if (response.jwt_expired === true) {
               this._expiredLock();
             } else {
               this._unlockUi();
@@ -287,10 +286,10 @@ class CasperRecoverPassword extends PolymerElement {
           }
           break;
         case 200:
-          if ( response.success === false ) {
+          if (response.success === false) {
             this._showError('Email não encontrado.');
           } else {
-            if ( response.access_token ) {
+            if (response.access_token) {
               this._showSuccess('Senha redefinida com sucesso');
               this.$.socket.saveSessionCookie(response.access_token, response.access_ttl, response.issuer_url);
               this._redirect(response.url);
@@ -307,11 +306,11 @@ class CasperRecoverPassword extends PolymerElement {
       }
     } catch (exception) {
       this._showError('Erro inesperado ao redefinir senha, por favor tente de novo!');
-    } 
+    }
   }
 
   _redirect (url) {
-    setTimeout(function(){
+    setTimeout(function () {
       window.location = url;
     }, 2000)
   }
@@ -319,7 +318,7 @@ class CasperRecoverPassword extends PolymerElement {
   _openToast (message, options) {
     this.$.toast.text = message;
 
-    if ( options !== undefined ) {
+    if (options !== undefined) {
       this.$.toast.duration = 0;
     }
     this.$.toast.open();
@@ -352,7 +351,7 @@ class CasperRecoverPassword extends PolymerElement {
     this._lockUi();
     this.$.toast.onclick = () => window.location = `/login?recover=${this.user_email}`;
     this.$.submitButton.style.visibility = 'hidden';
-    this._openToast('O link de recuperação expirou ou já foi utilizado, clique para obter um novo!', {duration: 0});
+    this._openToast('O link de recuperação expirou ou já foi utilizado, clique para obter um novo!', { duration: 0 });
   }
 
   _lockUi () {
@@ -375,8 +374,8 @@ class CasperRecoverPassword extends PolymerElement {
   }
 
   _onKeyDown (event) {
-    if ( event.keyCode === 13 ) {
-      if ( this.$.new_password.focused || this.$.new_password_confirmation.focused ) {
+    if (event.keyCode === 13) {
+      if (this.$.new_password.focused || this.$.new_password_confirmation.focused) {
         this.$.submitButton.click();
       }
     } else {
@@ -392,7 +391,7 @@ class CasperRecoverPassword extends PolymerElement {
   }
 
   _onFocusChange (event) {
-    if ( event.detail.value && (event.target.id === 'password' || event.target.id === 'email') ) {
+    if (event.detail.value && (event.target.id === 'password' || event.target.id === 'email')) {
       this._hideToast();
     }
   }
