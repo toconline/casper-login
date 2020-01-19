@@ -115,7 +115,7 @@ class CasperRecoverPassword extends PolymerElement {
         }
 
       </style>
-        <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
+        <casper-socket id="socket" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
         <paper-input disabled value="[[user_email]]" id="email" name="email" label="Correio eletrónico" tabindex="1"
                      auto-validate autocomplete="email" minlength="4">
         </paper-input>
