@@ -154,11 +154,6 @@ class CasperRecoverPassword extends PolymerElement {
 
   static get properties () {
     return {
-      /** Prefix for the beanstalk tube names */
-      tubePrefix: {
-        type: String,
-        value: 'casper'
-      },
       /** Domain used by the cookie, important when using a cluster */
       cookieDomain: {
         type: String,
