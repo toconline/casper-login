@@ -331,7 +331,9 @@ export class CasperLogin extends PolymerElement {
       const request = await fetch('/login/sign-in', {
         headers: {
           Authorization: credential,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-casper-remember': this.remember ? 'true' : 'false',
+          'x-casper-last-entity-id': window.localStorage.getItem('casper-last-entity-id')
         }
       });
       this._signInResponse(request);
