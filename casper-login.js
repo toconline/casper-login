@@ -327,7 +327,7 @@ export class CasperLogin extends PolymerElement {
     this.$.signIn.submitting(true);
 
     try {
-      const credential = 'basic ' + btoa(`${this.$.email.value.trim()}:${encodeURIComponent(this.$.password.value)}`);
+      const credential = 'basic ' + btoa(encodeURIComponent(`${this.$.email.value.trim()}:${this.$.password.value}`));
       const request = await fetch('/login/sign-in', {
         headers: {
           Authorization: credential,
