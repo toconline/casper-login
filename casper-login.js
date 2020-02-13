@@ -50,6 +50,10 @@ export class CasperLogin extends PolymerElement {
           width: 100%;
         }
 
+        casper-button {
+          margin-right: 0;
+        }
+
         #spin {
           width: 16px;
           height: 16px;
@@ -60,10 +64,6 @@ export class CasperLogin extends PolymerElement {
 
         #spin[active] {
           display: inline-flex;
-        }
-
-        casper-button{
-          margin-right: 0;
         }
 
         #signIn {
@@ -89,6 +89,17 @@ export class CasperLogin extends PolymerElement {
           --paper-toast-color: white;
         }
 
+        #forget_button {
+          visibility: hidden;
+        }
+
+        #showHidePassword {
+          cursor: pointer;
+          height: 20px;
+          width: 20px;
+          color: grey;
+        }
+
         .user_actions a {
           text-align: center;
           color: var(--primary-color);
@@ -98,10 +109,6 @@ export class CasperLogin extends PolymerElement {
 
         .user_actions a:hover {
           text-decoration: underline;
-        }
-
-        #forget_button {
-          visibility: hidden;
         }
 
         .buttons {
@@ -126,12 +133,34 @@ export class CasperLogin extends PolymerElement {
       </style>
         <casper-socket id="socket" tube-prefix="[[tubePrefix]]" cookie-domain=[[cookieDomain]] extra-options="[[socketOptions]]"></casper-socket>
 
-        <paper-input id="email" name="email" label="Correio eletrónico" tabindex="1"
-                     auto-validate autocomplete="email" minlength="4" autofocus>
+        <paper-input
+          id="email"
+          name="email"
+          label="Correio eletrónico"
+          tabindex="1"
+          auto-validate
+          autocomplete="email"
+          minlength="4"
+          autofocus>
         </paper-input>
-        <paper-input id="password" name="password" label="Senha" type="password" tabindex="2"
-                     auto-validate autocomplete="password" minlength="6">
+
+        <paper-input
+          id="password"
+          name="password"
+          label="Senha"
+          type="password"
+          tabindex="2"
+          auto-validate
+          autocomplete="password"
+          minlength="6">
+            <casper-icon
+              slot="suffix"
+              id="showHidePassword"
+              on-click="__changeInputType"
+              icon="fa-solid:eye-slash">
+            </casper-icon>
         </paper-input>
+
         <paper-checkbox id="remember" tabindex="4" checked="{{remember}}">Manter a sessão iniciada</paper-checkbox>
 
         <div class="buttons">
@@ -603,6 +632,13 @@ export class CasperLogin extends PolymerElement {
     }
   }
 
+  __changeInputType (event) {
+    const isInputTypeText = this.$.password.type === 'text';
+    const iconElemeent = event.target;
+
+    iconElemeent.icon = isInputTypeText ? 'fa-solid:eye-slash' : 'fa-solid:eye';
+    this.$.password.type = isInputTypeText ? 'password' : 'text';
+  }
 }
 
 window.customElements.define(CasperLogin.is, CasperLogin);
