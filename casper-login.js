@@ -31,7 +31,7 @@ export class CasperLogin extends PolymerElement {
 
   static get template () {
     return html`
-      <style>
+      <style include="casper-common-styles">
         :host {
           display: block;
           tabindex: -1;
@@ -97,7 +97,6 @@ export class CasperLogin extends PolymerElement {
           cursor: pointer;
           height: 20px;
           width: 20px;
-          color: grey;
         }
 
         .user_actions a {
