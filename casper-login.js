@@ -145,7 +145,6 @@ export class CasperLogin extends PolymerElement {
 
         <paper-input
           id="password"
-          name="password"
           label="Senha"
           type="password"
           tabindex="2"
