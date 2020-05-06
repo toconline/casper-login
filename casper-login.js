@@ -22,9 +22,9 @@ import { platformConfiguration } from '/platform-configuration.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
 import '@polymer/paper-checkbox/paper-checkbox.js';
-import '@casper2020/casper-icons/casper-icon.js';
-import '@casper2020/casper-button/casper-button.js';
-import '@casper2020/casper-socket/casper-socket.js';
+import '@cloudware-casper/casper-icons/casper-icon.js';
+import '@cloudware-casper/casper-button/casper-button.js';
+import '@cloudware-casper/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
 export class CasperLogin extends PolymerElement {
