@@ -1,7 +1,10 @@
 {
   "description": "UI elements for casper server login",
-  "name": "@casper2020/casper-login",
+  "name": "@cloudware-casper/casper-login",
   "version": "3.2.1",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",
