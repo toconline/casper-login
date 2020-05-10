@@ -15,7 +15,7 @@
   "dependencies": {
     "@cloudware-casper/casper-button": "^1.x",
     "@cloudware-casper/casper-icons": "^1.x",
-    "@cloudware-casper/casper-socket": "^3.x",
+    "@cloudware-casper/casper-socket": "^4.x",
     "@polymer/paper-button": "^3.x",
     "@polymer/paper-checkbox": "^3.x",
     "@polymer/paper-input": "^3.x",
