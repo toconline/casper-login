@@ -23,10 +23,10 @@
     "@polymer/iron-icons" "^3.x"
     "@polymer/polymer" "^3.x"
 
-"@cloudware-casper/casper-socket@^3.x":
-  version "3.2.3"
-  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-socket/3.2.3/9929799d2bbaf178972a57e4797c6732928f001c85e628a35db6479fd6ceded9#6c331cbaacefb6d4ef5cc22db2b288cb65fb9bfc"
-  integrity sha512-KAowLtfyn2yCA9jO6A0ASw+nD9i++Wl2m1K3pkU0TgZIX4INGWiGq7utusBwzsSQW3sYXi69TVnthapipQwULQ==
+"@cloudware-casper/casper-socket@^4.x":
+  version "4.0.1"
+  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-socket/4.0.1/d3e1048736720eaa985fd7d3e2e6d580dddb83ea9cc62d680e5eb06bbb82a60e#8d3b452dad32bb2e1f25e8088276a5c3b8589d84"
+  integrity sha512-gQs4tRMhhPGsrHyKs9+t5Obv5ZsqEvNWTPsXbv7+a6F4LVZeL7312XKTWt3/xWYPrbaJ6dOhn6vxlUAc+QzCpw==
   dependencies:
     "@polymer/polymer" "^3.x"
 
