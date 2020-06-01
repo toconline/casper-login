@@ -1,7 +1,7 @@
 {
   "description": "UI elements for casper server login",
   "name": "@cloudware-casper/casper-login",
-  "version": "4.0.1",
+  "version": "5.0.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
