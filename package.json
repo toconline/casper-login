@@ -5,27 +5,16 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "resolutions": {
-    "inherits": "2.0.3",
-    "samsam": "1.1.3",
-    "supports-color": "3.1.2",
-    "type-detect": "1.0.0"
-  },
   "main": "casper-login.js",
   "dependencies": {
     "@cloudware-casper/casper-button": "^1.x",
     "@cloudware-casper/casper-icons": "^1.x",
-    "@cloudware-casper/casper-socket": "^4.x",
+    "@cloudware-casper/casper-socket": "^5.x",
     "@polymer/paper-button": "^3.x",
     "@polymer/paper-checkbox": "^3.x",
     "@polymer/paper-input": "^3.x",
     "@polymer/paper-spinner": "^3.x",
     "@polymer/paper-toast": "^3.x",
     "@polymer/polymer": "^3.x"
-  },
-  "devDependencies": {
-    "@polymer/iron-demo-helpers": "^3.0.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
-    "wct-browser-legacy": "^1.0.1"
   }
 }
