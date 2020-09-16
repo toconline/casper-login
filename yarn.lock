@@ -3,11 +3,11 @@
 
 
 "@cloudware-casper/casper-button@^1.x":
-  version "1.3.0"
-  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-button/1.3.0/b5454cd927db2c13700876765dae38c0beb78c77e4cdc0b21b3caa4938851119#94a21be243475f959bcc1ba48574d45d216c1bf7"
-  integrity sha512-ORlyivYLBM1WhzmaqxW2x42TwUg+QFTSbSTDWHhlURm5eVC+DO/WGQ112NngUIeDiMp2zhm27fvGuDJhthNvlA==
+  version "1.4.0"
+  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-button/1.4.0/e4730a14434f427a6d30dc31195b4dac4fc3d46addec09dd887abb156a3ffcb7#6c4e72d16daeb0a196916ac7929ccce9085eb0e4"
+  integrity sha512-Ts/Bm+jgh1XHMeJ4jk9rEJrlP0iP0T+FA2eRWkQHRlT35/LKnmaK0XSO15ojiVzc/i6TcigF18wmIqaHqu5Stw==
   dependencies:
-    "@cloudware-casper/casper-icons" "^1.x"
+    "@cloudware-casper/casper-icons" "^2.x"
     "@polymer/iron-fit-behavior" "^3.x"
     "@polymer/iron-overlay-behavior" "^3.x"
     "@polymer/paper-button" "^3.x"
@@ -15,10 +15,10 @@
     "@polymer/polymer" "^3.x"
     "@vaadin/vaadin-progress-bar" "^1.x"
 
-"@cloudware-casper/casper-icons@^1.x":
-  version "1.22.1"
-  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-icons/1.22.1/945fadff99c0756c3242ec91f6dd8d8475e5cf938109d59f44955f0293674120#bdefd8315a6559311d7c6c20edc9a32eb2bac2d0"
-  integrity sha512-tUDg9BlmEWpz9ViN39Fm3KcGs1o4a5R/pBuFUQzffVjwgOX5Uhm1d3WSvZAnbuSqFl7X6Z2qVN/12A0KesaIhQ==
+"@cloudware-casper/casper-icons@^2.x":
+  version "2.0.0"
+  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-icons/2.0.0/02282bd9eb18bb2f92a8bb8a9b8a72a7b22cd553b7d6d7c4e173e28c7d2324c7#4530bba4d403280c603e1c971707ce5106449ecb"
+  integrity sha512-ohFaNY6h4BVdKvX3ljKuRGui4VNZKqgNxlpdQc0caq5SnpBsHigQ3vQxBiTwy/krAAeFnBmmPXZGI6YvDtWW7w==
   dependencies:
     "@polymer/polymer" "^3.x"
 
@@ -246,10 +246,10 @@
   resolved "https://registry.yarnpkg.com/@vaadin/vaadin-development-mode-detector/-/vaadin-development-mode-detector-2.0.4.tgz#f49c8009856bead92d248377c36b295b5aae78e5"
   integrity sha512-S+PaFrZpK8uBIOnIHxjntTrgumd5ztuCnZww96ydGKXgo9whXfZsbMwDuD/102a/IuPUMyF+dh/n3PbWzJ6igA==
 
-"@vaadin/vaadin-element-mixin@^2.3.0":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-element-mixin/-/vaadin-element-mixin-2.4.1.tgz#af65828a33169cb45ef2889aa7efe62a5bcd0db4"
-  integrity sha512-Ie7fwcOmg1C71UFuRwcuo2GKS+HbKvLedfs3hGdICiuwJ56cQvQsbIlxa4utKWWCVlf6yuSvMrny8efPPenfTA==
+"@vaadin/vaadin-element-mixin@^2.4.1":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-element-mixin/-/vaadin-element-mixin-2.4.2.tgz#3c8040a8e756bc274b7777723b1fba2b9895cd41"
+  integrity sha512-VSDVK0XUsFe/RohpwSzQwgqb2Pwpok6sDNhIDS4CARr3HPhq2voMzT/FowFbkEy0J1hFtN/ZfC7tkv3kdEKKIQ==
   dependencies:
     "@polymer/polymer" "^3.0.0"
     "@vaadin/vaadin-development-mode-detector" "^2.0.0"
@@ -272,17 +272,17 @@
     "@polymer/polymer" "^3.0.0"
 
 "@vaadin/vaadin-progress-bar@^1.x":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-progress-bar/-/vaadin-progress-bar-1.2.0.tgz#c8b362bb3f1dba7dbca930e74c1f21534c7b7f38"
-  integrity sha512-Yx7thw2KcPQtiFK7eA2pPmWn7xMaeb/yKGOPEMT4Jo7TMQtzl78wx1uy45+Ki/oX2lwZMNu3PuCa3rQNZzu1+Q==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@vaadin/vaadin-progress-bar/-/vaadin-progress-bar-1.3.0.tgz#d18485e3064accea52e567b6235fa05d3e3309ef"
+  integrity sha512-kPkG2M99UHHJVMX8TNN++KdU/rLTsDuDTNLUypcNVWDGDo0oHOY2P29yqwu8x6rGM3bIzgyQIgNSukKmIAjYcQ==
   dependencies:
     "@polymer/polymer" "^3.0.0"
-    "@vaadin/vaadin-element-mixin" "^2.3.0"
+    "@vaadin/vaadin-element-mixin" "^2.4.1"
     "@vaadin/vaadin-lumo-styles" "^1.1.0"
     "@vaadin/vaadin-material-styles" "^1.1.0"
-    "@vaadin/vaadin-themable-mixin" "^1.2.1"
+    "@vaadin/vaadin-themable-mixin" "^1.6.1"
 
-"@vaadin/vaadin-themable-mixin@^1.2.1":
+"@vaadin/vaadin-themable-mixin@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@vaadin/vaadin-themable-mixin/-/vaadin-themable-mixin-1.6.1.tgz#febaeea211a23e3a9f060345252bfe101284a469"
   integrity sha512-UXjOlEfMEk/QxpBjpiO0QTjPOSiO88bhhtV+0UTfpqk8ILvJYO+6vbwcja33xY5Wi9sTAXtHixAjM0LthyXglQ==
@@ -298,18 +298,18 @@
     "@vaadin/vaadin-development-mode-detector" "^2.0.0"
 
 "@webcomponents/shadycss@^1.9.1":
-  version "1.9.6"
-  resolved "https://registry.yarnpkg.com/@webcomponents/shadycss/-/shadycss-1.9.6.tgz#a8c5db867e49200a05cf8d5008029c09b7861979"
-  integrity sha512-5fFjvP0jQJZoXK6YzYeYcIDGJ5oEsdjr1L9VaYLw5yxNd4aRz4srMpwCwldeNG0A6Hvr9igbG7fCsBeiiCXd7A==
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@webcomponents/shadycss/-/shadycss-1.10.1.tgz#6f377b313c96a93a690f25206b32a20eada4b2a9"
+  integrity sha512-XEVDA7oH6o4Au9apyRDucjcIzvP44Ur4sqTMGRKCcE6sCAeKiOkRE03TCYNJAFkzckMWWT8Xx3IxG3iwjAcsRQ==
 
 lit-element@^2.0.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-2.3.1.tgz#73343b978fa1e73d60526c6bb6ad60f53a16c343"
-  integrity sha512-tOcUAmeO3BzwiQ7FGWdsshNvC0HVHcTFYw/TLIImmKwXYoV0E7zCBASa8IJ7DiP4cen/Yoj454gS0qqTnIGsFA==
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-2.4.0.tgz#b22607a037a8fc08f5a80736dddf7f3f5d401452"
+  integrity sha512-pBGLglxyhq/Prk2H91nA0KByq/hx/wssJBQFiYqXhGDvEnY31PRGYf1RglVzyLeRysu0IHm2K0P196uLLWmwFg==
   dependencies:
     lit-html "^1.1.1"
 
 lit-html@^1.1.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-1.2.1.tgz#1fb933dc1e2ddc095f60b8086277d4fcd9d62cc8"
-  integrity sha512-GSJHHXMGLZDzTRq59IUfL9FCdAlGfqNp/dEa7k7aBaaWD+JKaCjsAk9KYm2V12ItonVaYx2dprN66Zdm1AuBTQ==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-1.3.0.tgz#c80f3cc5793a6dea6c07172be90a70ab20e56034"
+  integrity sha512-0Q1bwmaFH9O14vycPHw8C/IeHMk/uSDldVLIefu/kfbTBGIc44KGH6A8p1bDfxUfHdc8q6Ct7kQklWoHgr4t1Q==
