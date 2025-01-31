@@ -1,15 +1,15 @@
 {
   "description": "UI elements for casper server login",
-  "name": "@cloudware-casper/casper-login",
+  "name": "@toconline/casper-login",
   "version": "5.1.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "main": "casper-login.js",
   "dependencies": {
-    "@cloudware-casper/casper-button": "^1.x",
-    "@cloudware-casper/casper-icons": "^2.x",
-    "@cloudware-casper/casper-socket": "^5.x",
+    "@toconline/casper-button": "^1.x",
+    "@toconline/casper-icons": "^2.x",
+    "@toconline/casper-socket": "^5.x",
     "@polymer/paper-button": "^3.x",
     "@polymer/paper-checkbox": "^3.x",
     "@polymer/paper-input": "^3.x",

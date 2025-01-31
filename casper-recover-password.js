@@ -21,9 +21,9 @@
 import { platformConfiguration } from '/platform-configuration.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-toast/paper-toast.js';
-import '@cloudware-casper/casper-icons/casper-icon.js';
-import '@cloudware-casper/casper-button/casper-button.js';
-import '@cloudware-casper/casper-socket/casper-socket.js';
+import '@toconline/casper-icons/casper-icon.js';
+import '@toconline/casper-button/casper-button.js';
+import '@toconline/casper-socket/casper-socket.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js'
 
 class CasperRecoverPassword extends PolymerElement {
